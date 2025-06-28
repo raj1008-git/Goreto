@@ -9,18 +9,18 @@ class StoryboardAnimator {
   late Animation<Offset> cardOffsetAnimation;
   late Animation<double> cardOpacityAnimation;
 
-  static const Duration _imageFadeDuration = Duration(milliseconds: 700);
-  static const Duration _cardSlideDuration = Duration(milliseconds: 700);
-  static const Duration _delayBeforeCardEntry = Duration(milliseconds: 200);
-  static const Duration _delayBeforeNewImageEntry = Duration(milliseconds: 150);
+  static const Duration _imageFadeDuration = Duration(milliseconds: 500);
+  static const Duration _cardSlideDuration = Duration(milliseconds: 400);
+  static const Duration _delayBeforeCardEntry = Duration(milliseconds: 300);
+  static const Duration _delayBeforeNewImageEntry = Duration(milliseconds: 0);
 
   StoryboardAnimator({required this.vsync}) {
     imageFadeController = AnimationController(
       vsync: vsync,
       duration: _imageFadeDuration,
     );
-    imageOpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: imageFadeController, curve: Curves.easeOut),
+    imageOpacityAnimation = Tween<double>(begin: 0.4, end: 1.0).animate(
+      CurvedAnimation(parent: imageFadeController, curve: Curves.linear),
     );
 
     cardSlideController = AnimationController(
@@ -29,13 +29,10 @@ class StoryboardAnimator {
     );
     cardOffsetAnimation =
         Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(
-          CurvedAnimation(
-            parent: cardSlideController,
-            curve: Curves.easeOutCubic,
-          ),
+          CurvedAnimation(parent: cardSlideController, curve: Curves.linear),
         );
     cardOpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: cardSlideController, curve: Curves.easeIn),
+      CurvedAnimation(parent: cardSlideController, curve: Curves.linear),
     );
   }
 

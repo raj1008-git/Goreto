@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goreto/core/constants/appColors.dart';
 
 class StoryCard extends StatelessWidget {
   final String title;
@@ -33,38 +34,49 @@ class StoryCard extends StatelessWidget {
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
+            textAlign: TextAlign.start,
             title,
             style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+              fontSize: 30,
+              fontWeight: FontWeight.w700,
               color: Color(0xFF192639),
             ),
           ),
           const SizedBox(height: 16),
           Text(
             description,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+            textAlign: TextAlign.start,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w400,
+              color: Colors.grey[800],
+            ),
           ),
           const SizedBox(height: 30),
-          ElevatedButton(
-            onPressed: onPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE4A70A),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
+          Center(
+            child: ElevatedButton(
+              onPressed: onPressed,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.secondary,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 16,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
               ),
-            ),
-            child: Text(
-              isLast ? 'Get Started' : 'Next',
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+              child: Text(
+                isLast ? 'Get Started' : 'Next',
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),

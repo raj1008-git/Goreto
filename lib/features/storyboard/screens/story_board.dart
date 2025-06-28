@@ -66,6 +66,7 @@ class _StoryBoardScreenState extends State<StoryBoardScreen>
     final currentStory = storyProvider.currentStory;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
           // Background image with fade
@@ -111,7 +112,7 @@ class _StoryBoardScreenState extends State<StoryBoardScreen>
                             Navigator.pushReplacement(
                               context,
                               buildSlideTransition(
-                                AppRoutes.getPage(AppRoutes.dashboard),
+                                AppRoutes.getPage(AppRoutes.loginorregister),
                               ),
                             );
                           } else {
