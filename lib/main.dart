@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:goreto/data/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'app.dart';
@@ -14,7 +15,10 @@ void main() async {
 
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => StoryBoardProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => StoryBoardProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ],
       child: const MyApp(), // Your main app widget
     ),
   );

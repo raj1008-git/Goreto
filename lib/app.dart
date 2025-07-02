@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goreto/features/auth/screens/auth_screen.dart';
 import 'package:goreto/features/splash/screens/splash_screen.dart';
 import 'package:goreto/routes/app_routes.dart';
 
@@ -11,8 +12,8 @@ class MyApp extends StatelessWidget {
       title: 'Tourism App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(fontFamily: 'Poppins'),
-      home: const SplashScreen(),
-      initialRoute: AppRoutes.splash,
+      home: const AuthScreen(),
+      initialRoute: AppRoutes.auth,
       onGenerateRoute: AppRoutes.generateRoute,
     );
   }
