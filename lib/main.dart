@@ -1,6 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:goreto/data/datasources/remote/review_api_service.dart';
 import 'package:goreto/data/providers/auth_provider.dart';
+import 'package:goreto/data/providers/place_provider.dart';
+import 'package:goreto/data/providers/review_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'app.dart';
@@ -18,6 +22,10 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => StoryBoardProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => PlaceProvider()..fetchPlaces()),
+        ChangeNotifierProvider(
+          create: (_) => ReviewProvider(ReviewApiService(Dio())),
+        ),
       ],
       child: const MyApp(), // Your main app widget
     ),

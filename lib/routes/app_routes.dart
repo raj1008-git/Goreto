@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:goreto/data/models/places/place_model.dart';
 import 'package:goreto/features/auth/screens/auth_screen.dart';
 import 'package:goreto/features/auth/screens/login_or_register.dart';
+import 'package:goreto/features/maps/screens/maps_screen.dart';
+import 'package:goreto/features/placeDetail/screens/place_detail_screen.dart';
+import 'package:goreto/features/splash/screens/splash_screen.dart';
+import 'package:goreto/features/storyboard/screens/story_board.dart';
+import 'package:goreto/presentation/screens/dashboard/dashboard_screen.dart';
+import 'package:goreto/presentation/screens/main_navigation_screen_controller.dart';
 import 'package:page_transition/page_transition.dart';
-
-import '../features/splash/screens/splash_screen.dart';
-import '../features/storyboard/screens/story_board.dart';
-import '../presentation/screens/dashboard/dashboard_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -13,7 +16,9 @@ class AppRoutes {
   static const String dashboard = '/dashboard';
   static const String loginorregister = '/loginorregister';
   static const String auth = '/auth';
-  // Add more named routes here as needed
+  static const String mainNavigation = '/mainNavigation';
+  static const String mapScreen = '/mapScreen';
+  static const String placeDetail = '/placeDetail';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -23,12 +28,18 @@ class AppRoutes {
         return _buildPage(const DashboardScreen());
       case story:
         return _buildPage(const StoryBoardScreen());
-
       case loginorregister:
         return _buildPage(const LoginOrRegisterScreen());
-      // Add more cases here
       case auth:
-        return _buildPage(const AuthScreen());
+        final isLogin = (settings.arguments as bool?) ?? true;
+        return _buildPage(AuthScreen(isInitiallyLogin: isLogin));
+      case mainNavigation:
+        return _buildPage(const MainNavigationScreen());
+      case mapScreen:
+        return _buildPage(const MapsScreen());
+      case placeDetail:
+        final place = settings.arguments as PlaceModel;
+        return _buildPage(PlaceDetailScreen(place: place));
       default:
         return _errorRoute();
     }
@@ -47,6 +58,12 @@ class AppRoutes {
       case auth:
         final isLogin = (arguments is bool) ? arguments : true;
         return AuthScreen(isInitiallyLogin: isLogin);
+      case mainNavigation:
+        return const MainNavigationScreen();
+      case mapScreen:
+        return const MapsScreen();
+      case placeDetail:
+        return PlaceDetailScreen(place: arguments as PlaceModel);
       default:
         return const Scaffold(body: Center(child: Text("404")));
     }
@@ -63,7 +80,7 @@ class AppRoutes {
   static Route<dynamic> _errorRoute() {
     return MaterialPageRoute(
       builder: (_) =>
-          Scaffold(body: Center(child: Text('404 - Page not found'))),
+          const Scaffold(body: Center(child: Text('404 - Page not found'))),
     );
   }
 }

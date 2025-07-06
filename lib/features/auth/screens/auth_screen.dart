@@ -205,7 +205,9 @@ class _AuthScreenState extends State<AuthScreen> {
                           Navigator.pushReplacement(
                             context,
                             PageTransition(
-                              child: AppRoutes.getPage(AppRoutes.dashboard),
+                              child: AppRoutes.getPage(
+                                AppRoutes.mainNavigation,
+                              ),
 
                               type: PageTransitionType.fade,
                               duration: const Duration(milliseconds: 700),

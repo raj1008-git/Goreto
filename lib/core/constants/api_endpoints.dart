@@ -1,4 +1,9 @@
 class ApiEndpoints {
-  static const String baseUrl = "http://192.168.1.31:8000/api";
+  static const String baseUrl = "http://192.168.20.48:8000/api";
+  static const String storageBaseUrl = "http://192.168.20.48:8000/storage";
+
   static const String login = "$baseUrl/login";
+  static const String placesByCategory = "$baseUrl/places-by-category";
+
+  static String imageUrl(String imagePath) => "$imagePath";
 }
