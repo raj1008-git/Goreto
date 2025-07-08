@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:goreto/presentation/screens/chat/chat_list_screen.dart';
+import 'package:goreto/presentation/screens/chat/chat_home_screen.dart';
 import 'package:goreto/presentation/screens/dashboard/dashboard_screen.dart';
 import 'package:goreto/features/storyboard/screens/story_board.dart';
 import 'package:goreto/presentation/screens/news_feed/news_feed_screen.dart';
@@ -22,7 +22,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     const DashboardScreen(),
     const NewsfeedScreen(),
     MapsScreen(), // this is not directly visible in nav, but kept for index
-    const ChatListScreen(),
+    const ChatHomeScreen(),
     const ProfileScreen(),
   ];
 
