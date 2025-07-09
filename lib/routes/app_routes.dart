@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:goreto/data/models/places/place_model.dart';
+import 'package:goreto/data/models/chat/chat_model.dart';
 import 'package:goreto/features/auth/screens/auth_screen.dart';
 import 'package:goreto/features/auth/screens/login_or_register.dart';
 import 'package:goreto/features/maps/screens/maps_screen.dart';
 import 'package:goreto/features/placeDetail/screens/place_detail_screen.dart';
 import 'package:goreto/features/splash/screens/splash_screen.dart';
 import 'package:goreto/features/storyboard/screens/story_board.dart';
+import 'package:goreto/features/chat/screens/chat_room_screen.dart';
 import 'package:goreto/presentation/screens/dashboard/dashboard_screen.dart';
 import 'package:goreto/presentation/screens/main_navigation_screen_controller.dart';
 import 'package:page_transition/page_transition.dart';
@@ -19,6 +21,7 @@ class AppRoutes {
   static const String mainNavigation = '/mainNavigation';
   static const String mapScreen = '/mapScreen';
   static const String placeDetail = '/placeDetail';
+  static const String chatRoom = '/chatRoom'; // ✅ NEW
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -40,6 +43,9 @@ class AppRoutes {
       case placeDetail:
         final place = settings.arguments as PlaceModel;
         return _buildPage(PlaceDetailScreen(place: place));
+      case chatRoom: // ✅ NEW
+        final chat = settings.arguments as Chat;
+        return _buildPage(ChatRoomScreen(chat: chat));
       default:
         return _errorRoute();
     }
@@ -64,6 +70,8 @@ class AppRoutes {
         return const MapsScreen();
       case placeDetail:
         return PlaceDetailScreen(place: arguments as PlaceModel);
+      case chatRoom:
+        return ChatRoomScreen(chat: arguments as Chat);
       default:
         return const Scaffold(body: Center(child: Text("404")));
     }

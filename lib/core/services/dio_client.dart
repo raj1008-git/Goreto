@@ -1,21 +1,21 @@
 import 'package:dio/dio.dart';
 import 'package:goreto/core/constants/api_endpoints.dart';
+
 import 'secure_storage_service.dart';
 
 class DioClient {
+  late Dio dio;
   static final DioClient _instance = DioClient._internal();
   factory DioClient() => _instance;
-
-  late Dio dio;
 
   DioClient._internal() {
     dio =
         Dio(
             BaseOptions(
               baseUrl: ApiEndpoints.baseUrl,
-              connectTimeout: const Duration(seconds: 10),
-              receiveTimeout: const Duration(seconds: 10),
-              sendTimeout: const Duration(seconds: 10),
+              connectTimeout: const Duration(seconds: 20),
+              receiveTimeout: const Duration(seconds: 20),
+              sendTimeout: const Duration(seconds: 20),
               headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',

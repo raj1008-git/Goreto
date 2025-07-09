@@ -1,4 +1,7 @@
-// nearby_user_model.dart
+// Make sure this import exists
+
+import 'package:goreto/data/models/chat/chat_model.dart';
+
 class NearbyUserResponse {
   final String message;
   final int count;
@@ -39,4 +42,10 @@ class NearbyUser {
     email: json['email'],
     distance: json['distance'].toDouble(),
   );
+}
+
+extension NearbyUserMapper on NearbyUser {
+  ChatUser toChatUser() {
+    return ChatUser(id: id, name: name, email: email);
+  }
 }
