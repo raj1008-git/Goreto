@@ -10,6 +10,9 @@ import 'package:goreto/presentation/screens/dashboard/dashboard_screen.dart';
 import 'package:goreto/presentation/screens/main_navigation_screen_controller.dart';
 import 'package:page_transition/page_transition.dart';
 
+import '../features/chat/personal_chat_screen.dart';
+import '../presentation/screens/chat/chat_home_screen.dart';
+
 class AppRoutes {
   static const String splash = '/';
   static const String story = '/storyBoard';
@@ -19,6 +22,9 @@ class AppRoutes {
   static const String mainNavigation = '/mainNavigation';
   static const String mapScreen = '/mapScreen';
   static const String placeDetail = '/placeDetail';
+  // NEW CHAT ROUTES
+  static const String chatHome = '/chatHome';
+  static const String personalChat = '/personalChat';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -40,6 +46,14 @@ class AppRoutes {
       case placeDetail:
         final place = settings.arguments as PlaceModel;
         return _buildPage(PlaceDetailScreen(place: place));
+      // NEW CHAT ROUTES CASES
+      case chatHome:
+        return _buildPage(const ChatHomeScreen());
+      case personalChat:
+        // We don't need to directly use settings.arguments (chatId) here
+        // as the ChatProvider already manages the currentChat state.
+        // The argument is effectively just a trigger for navigation.
+        return _buildPage(const PersonalChatScreen());
       default:
         return _errorRoute();
     }
@@ -64,6 +78,11 @@ class AppRoutes {
         return const MapsScreen();
       case placeDetail:
         return PlaceDetailScreen(place: arguments as PlaceModel);
+      // NEW CHAT ROUTES GET PAGE CASES
+      case chatHome:
+        return const ChatHomeScreen();
+      case personalChat:
+        return const PersonalChatScreen();
       default:
         return const Scaffold(body: Center(child: Text("404")));
     }
