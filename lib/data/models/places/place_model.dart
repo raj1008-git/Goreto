@@ -6,6 +6,7 @@ class PlaceModel {
   final String description;
   final String imagePath;
   final String category;
+  final double? distance; // new optional
 
   PlaceModel({
     required this.id,
@@ -15,6 +16,7 @@ class PlaceModel {
     required this.description,
     required this.imagePath,
     required this.category,
+    this.distance,
   });
 
   factory PlaceModel.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,9 @@ class PlaceModel {
       description: json['description'],
       imagePath: json['location_images'][0]['image_url'],
       category: json['category']['category'],
+      distance: json['distance'] != null
+          ? (json['distance'] as num).toDouble()
+          : null,
     );
   }
 }

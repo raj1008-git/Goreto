@@ -1,12 +1,58 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:goreto/core/constants/appColors.dart';
+import 'package:goreto/core/utils/app_loader.dart';
 import 'package:goreto/core/utils/media_query_helper.dart';
 import 'package:goreto/data/providers/place_provider.dart';
 import 'package:goreto/presentation/widgets/place_card.dart';
 import 'package:provider/provider.dart';
 
-class DashboardScreen extends StatelessWidget {
+import '../../../core/constants/category_class.dart';
+import '../../../core/constants/dashboad_play.dart';
+import '../../../data/providers/popular_place_provider.dart';
+import '../../widgets/popular_place_card.dart';
+
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  dynamic _currentImageIndex = 0;
+  late Timer _imageTimer;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Fetch recommended and popular places after widget build
+    Future.microtask(() {
+      final placeProvider = Provider.of<PlaceProvider>(context, listen: false);
+      final popularPlaceProvider = Provider.of<PopularPlaceProvider>(
+        context,
+        listen: false,
+      );
+
+      placeProvider.fetchPlaces();
+      popularPlaceProvider.fetchPopularPlacesNearby();
+    });
+
+    // Your existing carousel timer
+    _imageTimer = Timer.periodic(Duration(seconds: 4), (timer) {
+      setState(() {
+        _currentImageIndex = (_currentImageIndex + 1) % dashboardImages.length;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _imageTimer.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,26 +61,42 @@ class DashboardScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      body: Consumer<PlaceProvider>(
-        builder: (context, placeProvider, _) {
+      body: Consumer2<PlaceProvider, PopularPlaceProvider>(
+        builder: (context, placeProvider, popularPlaceProvider, _) {
           final places = placeProvider.places;
+          final popularPlaces = popularPlaceProvider.popularPlaces;
+          print("============^^^^^^^^++++++++++++++: ${popularPlaces.length}");
+
+          final isLoading =
+              placeProvider.isLoading || popularPlaceProvider.isLoading;
 
           return CustomScrollView(
             slivers: [
               // Top section (non-scrollable)
               SliverToBoxAdapter(
-                child: SizedBox(
+                child: Container(
                   height: topSectionHeight,
+                  width: double.infinity,
                   child: Stack(
                     children: [
                       Positioned.fill(
-                        child: Image.asset(
-                          'assets/images/story1.jpg',
-                          fit: BoxFit.cover,
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 800),
+                          child: SizedBox.expand(
+                            key: ValueKey<String>(
+                              dashboardImages[_currentImageIndex],
+                            ),
+                            child: Image.asset(
+                              dashboardImages[_currentImageIndex],
+                              fit: BoxFit.cover,
+                              alignment: Alignment.center,
+                            ),
+                          ),
                         ),
                       ),
+
                       Positioned(
-                        top: 60,
+                        top: 40,
                         left: 16,
                         child: Image.asset(
                           'assets/logos/goreto.png',
@@ -62,7 +124,7 @@ class DashboardScreen extends StatelessWidget {
                         ),
                       ),
                       Positioned(
-                        top: 150,
+                        top: 130,
                         left: 16,
                         right: 16,
                         bottom: 20,
@@ -108,36 +170,48 @@ class DashboardScreen extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 18),
+
                             SizedBox(
-                              height: 45,
+                              height: 55,
                               child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
-                                itemCount: 10,
+                                itemCount: categories.length,
                                 itemBuilder: (context, index) {
+                                  final category = categories[index];
                                   return Container(
-                                    margin: const EdgeInsets.only(right: 16),
-                                    padding: const EdgeInsets.all(10),
+                                    margin: const EdgeInsets.only(right: 12),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: Colors.white,
                                       borderRadius: BorderRadius.circular(16),
                                       boxShadow: const [
                                         BoxShadow(
                                           color: Colors.black12,
-                                          blurRadius: 6,
-                                          offset: Offset(0, 3),
+                                          blurRadius: 4,
+                                          offset: Offset(0, 2),
                                         ),
                                       ],
                                     ),
-                                    width: 120,
-                                    child: Center(
-                                      child: Text(
-                                        "Lakes ${index + 1}",
-                                        style: const TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 16,
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          category.icon,
+                                          size: 20,
+                                          color: Colors.black87,
                                         ),
-                                      ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          category.name,
+                                          style: const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   );
                                 },
@@ -152,10 +226,8 @@ class DashboardScreen extends StatelessWidget {
               ),
 
               // Body scrollable area
-              if (placeProvider.isLoading)
-                const SliverFillRemaining(
-                  child: Center(child: CircularProgressIndicator()),
-                )
+              if (isLoading)
+                const SliverFillRemaining(child: Center(child: AppLoader()))
               else
                 SliverToBoxAdapter(
                   child: Padding(
@@ -163,6 +235,7 @@ class DashboardScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Recommended Places Section
                         const Text(
                           "Recommended for You",
                           style: TextStyle(
@@ -180,6 +253,31 @@ class DashboardScreen extends StatelessWidget {
                                 const SizedBox(width: 12),
                             itemBuilder: (context, index) {
                               return PlaceCard(place: places[index]);
+                            },
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Popular Places Nearby Section
+                        const Text(
+                          "Popular Places Nearby",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          height: 230,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: popularPlaces.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(width: 12),
+                            itemBuilder: (context, index) {
+                              final popularPlace = popularPlaces[index];
+                              return PopularPlaceCard(place: popularPlace);
                             },
                           ),
                         ),

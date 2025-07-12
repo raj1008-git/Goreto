@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:goreto/core/constants/api_endpoints.dart';
+import 'package:goreto/data/models/places/popular_places_model.dart';
+import 'package:goreto/features/maps/screens/maps_screen.dart';
 
-import '../../core/constants/api_endpoints.dart';
-import '../../data/models/places/place_model.dart';
-import '../../features/maps/screens/maps_screen.dart';
+class PopularPlaceCard extends StatefulWidget {
+  final PopularPlaceModel place;
 
-class PlaceCard extends StatefulWidget {
-  final PlaceModel place;
-  final bool showDistance;
-
-  const PlaceCard({super.key, required this.place, this.showDistance = false});
+  const PopularPlaceCard({super.key, required this.place});
 
   @override
-  State<PlaceCard> createState() => _PlaceCardState();
+  State<PopularPlaceCard> createState() => _PopularPlaceCardState();
 }
 
-class _PlaceCardState extends State<PlaceCard> {
+class _PopularPlaceCardState extends State<PopularPlaceCard> {
   bool isFavorited = false;
 
   void _toggleFavorite() async {
@@ -30,7 +28,9 @@ class _PlaceCardState extends State<PlaceCard> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => MapsScreen(place: widget.place)),
+          MaterialPageRoute(
+            builder: (_) => MapsScreen(place: widget.place.toPlaceModel()),
+          ),
         );
       },
       child: Container(
@@ -107,18 +107,13 @@ class _PlaceCardState extends State<PlaceCard> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  if (widget.showDistance && widget.place.distance != null) ...[
+                  if (widget.place.distance != null) ...[
                     const SizedBox(width: 6),
                     Text(
                       '${(widget.place.distance! / 1000).toStringAsFixed(1)} km',
                       style: TextStyle(color: Colors.grey[700], fontSize: 12),
                     ),
                   ],
-                  const SizedBox(width: 4),
-                  const Icon(Icons.star, color: Colors.amber, size: 16),
-                  const Icon(Icons.star, color: Colors.amber, size: 16),
-                  const Icon(Icons.star, color: Colors.amber, size: 16),
-                  const Icon(Icons.star, color: Colors.amber, size: 16),
                 ],
               ),
             ),

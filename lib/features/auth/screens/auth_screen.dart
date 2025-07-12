@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goreto/core/utils/app_loader.dart';
 import 'package:goreto/core/utils/snackbar_helper.dart';
 import 'package:goreto/data/providers/auth_provider.dart';
 import 'package:goreto/routes/app_routes.dart';
@@ -42,22 +43,26 @@ class _AuthScreenState extends State<AuthScreen> {
         elevation: 0,
         leading: Padding(
           padding: const EdgeInsets.all(10.0),
-          child: Container(
-            margin: EdgeInsets.zero,
-            padding: EdgeInsets.zero,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios,
-                size: 20,
-                color: Colors.black,
+          child: SizedBox(
+            width: 40,
+            height: 40,
+            child: Material(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: const BorderSide(color: Colors.grey),
               ),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              onPressed: () => Navigator.pop(context),
+              color: Colors.transparent,
+              child: IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios,
+                  size: 20,
+                  color: Colors.black,
+                ),
+                onPressed: () => Navigator.pop(context),
+                padding: const EdgeInsets.all(0),
+                constraints: const BoxConstraints(),
+                alignment: Alignment.center,
+              ),
             ),
           ),
         ),
@@ -83,7 +88,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     style: const TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
+                      color: AppColors.secondary,
                     ),
                   ),
                   const SizedBox(height: 30),
@@ -183,8 +188,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         showDialog(
                           context: context,
                           barrierDismissible: false,
-                          builder: (_) =>
-                              const Center(child: CircularProgressIndicator()),
+                          builder: (_) => const Center(child: AppLoader()),
                         );
 
                         try {
@@ -208,9 +212,9 @@ class _AuthScreenState extends State<AuthScreen> {
                               child: AppRoutes.getPage(
                                 AppRoutes.mainNavigation,
                               ),
-
-                              type: PageTransitionType.fade,
-                              duration: const Duration(milliseconds: 700),
+                              type: PageTransitionType.scale,
+                              alignment: Alignment.center,
+                              duration: const Duration(milliseconds: 800),
                             ),
                           );
                         } catch (e) {

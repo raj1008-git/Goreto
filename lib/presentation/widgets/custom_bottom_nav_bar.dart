@@ -37,7 +37,7 @@ class CustomBottomNavBar extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildNavItem(Icons.dashboard, "Dashboard", 0),
-                _buildNavItem(Icons.article, "Stories", 1),
+                _buildNavItem(Icons.public, "Stories", 1),
                 const SizedBox(width: 40), // space for FAB
                 _buildNavItem(Icons.chat, "Chat", 2),
                 _buildNavItem(Icons.person, "Profile", 3),

@@ -67,10 +67,15 @@ class _MapsScreenState extends State<MapsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Map'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 1,
+        centerTitle: true,
+        title: Image.asset(
+          'assets/logos/goreto.png',
+          height: 60, // Adjust height as needed
+          fit: BoxFit.contain,
+        ),
       ),
       body: GoogleMap(
         key: const ValueKey("unique_map"),

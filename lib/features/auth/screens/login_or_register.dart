@@ -86,14 +86,13 @@ class _LoginOrRegisterScreenState extends State<LoginOrRegisterScreen>
                               Navigator.push(
                                 context,
                                 PageTransition(
-                                  type: PageTransitionType.fade,
-                                  duration: const Duration(milliseconds: 1000),
+                                  type: PageTransitionType.rightToLeftWithFade,
+
+                                  alignment: Alignment.center,
+                                  duration: const Duration(milliseconds: 800),
                                   child: AppRoutes.getPage(
                                     AppRoutes.auth,
                                     arguments: true,
-                                  ), // false = show register screen
-                                  settings: const RouteSettings(
-                                    name: AppRoutes.auth,
                                   ),
                                 ),
                               );

@@ -20,8 +20,9 @@ class StoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: width,
-      padding: const EdgeInsets.all(24.0),
+      margin: EdgeInsets.symmetric(horizontal: 25),
+      width: double.infinity,
+      padding: const EdgeInsets.all(22.0),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.9),
         borderRadius: BorderRadius.circular(25.0),
@@ -37,6 +38,7 @@ class StoryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
+          Image.asset("assets/logos/goreto.png", width: 100, height: 100),
           Text(
             textAlign: TextAlign.start,
             title,
@@ -51,7 +53,7 @@ class StoryCard extends StatelessWidget {
             description,
             textAlign: TextAlign.start,
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 19,
               fontWeight: FontWeight.w400,
               color: Colors.grey[800],
             ),

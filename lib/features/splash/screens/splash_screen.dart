@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:goreto/core/utils/app_loader.dart';
 import 'package:page_transition/page_transition.dart';
 
 import '../../../core/utils/media_query_helper.dart';
@@ -59,10 +59,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     const SizedBox(height: 42),
 
                     // Progress Indicator
-                    const SpinKitThreeBounce(
-                      color: Color(0xFF192639),
-                      size: 24.0,
-                    ),
+                    AppLoader(),
                   ],
                 ),
               ),

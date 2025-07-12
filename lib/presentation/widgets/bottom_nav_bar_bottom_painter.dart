@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/constants/appColors.dart';
+
 class BottomNavBarBorderPainter extends CustomPainter {
   final Color color;
   final double fabRadius;
@@ -14,9 +16,9 @@ class BottomNavBarBorderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color
+      ..color = AppColors.secondary
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
+      ..strokeWidth = 2.5;
 
     final path = Path();
     final centerX = screenWidth / 2;
