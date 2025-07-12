@@ -9,13 +9,13 @@ class StoryBoardProvider extends ChangeNotifier {
   final List<StoryItem> _stories = [
     StoryItem(
       imagePath: 'assets/images/story1.jpg', // Make sure you have these assets
-      title: 'Get Ready for the next trip',
-      description: 'Let Goreto decide your next unforgettable journey.',
+      title: 'Get ready for the next trip',
+      description: 'Let Goreto guide your next unforgettable journey.',
     ),
     StoryItem(
       imagePath: 'assets/images/story2.jpg',
       title: 'Navigate Smartly',
-      description: 'Find rides, tips and local-routes all in one place.',
+      description: 'Find rides, routes and local tips all in one place.',
     ),
     StoryItem(
       imagePath: 'assets/images/story3.jpg',

@@ -91,25 +91,23 @@ class _LoginOrRegisterScreenState extends State<LoginOrRegisterScreen>
                                   child: AppRoutes.getPage(
                                     AppRoutes.auth,
                                     arguments: true,
-                                  ), // false = show register screen
+                                  ),
                                   settings: const RouteSettings(
                                     name: AppRoutes.auth,
                                   ),
                                 ),
                               );
                             },
-                            backgroundColor: AppColors.primary,
                             textColor: Colors.white,
+                            backgroundGradient: const LinearGradient(
+                              colors: [Color(0xFFFFF176), Color(0xFFFCAC43)],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
                           ),
                           const SizedBox(height: 12),
                           CustomButton(
                             text: "Register",
-                            onPressed: () {},
-                            backgroundColor: Colors.grey.shade200,
-                            textColor: Colors.black,
-                          ),
-                          const SizedBox(height: 16),
-                          TextButton(
                             onPressed: () {
                               Navigator.push(
                                 context,
@@ -126,12 +124,29 @@ class _LoginOrRegisterScreenState extends State<LoginOrRegisterScreen>
                                 ),
                               );
                             },
+                            backgroundColor: Color(0xFFF2F2F7),
+                            textColor: Color(0xFF484848),
+                          ),
+                          const SizedBox(height: 16),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      AppRoutes.getPage(AppRoutes.dashboard),
+                                ),
+                              );
+                            },
+
                             child: const Text(
                               "Continue as guest",
                               style: TextStyle(
-                                fontSize: 16,
-                                color: AppColors.secondary,
-                                fontWeight: FontWeight.w500,
+                                fontSize: 15,
+                                color: Color(0xFFFCAC43),
+                                decorationColor: Color(0xFFFCAC43),
+                                decoration: TextDecoration.underline,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),

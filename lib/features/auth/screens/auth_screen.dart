@@ -50,10 +50,13 @@ class _AuthScreenState extends State<AuthScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios,
-                size: 20,
-                color: Colors.black,
+              icon: Center(
+                // <-- add this Center here
+                child: const Icon(
+                  Icons.arrow_back_ios,
+                  size: 20,
+                  color: Colors.black,
+                ),
               ),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
@@ -161,6 +164,11 @@ class _AuthScreenState extends State<AuthScreen> {
                   const SizedBox(height: 8),
                   CustomButton(
                     text: isLogin ? "Login" : "Register",
+                    backgroundGradient: const LinearGradient(
+                      colors: [Color(0xFFFFF176), Color(0xFFFCAC43)],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
                     onPressed: () async {
                       if (isLogin) {
                         final authProvider = Provider.of<AuthProvider>(

@@ -42,8 +42,10 @@ class StoryCard extends StatelessWidget {
             title,
             style: const TextStyle(
               fontSize: 30,
+              letterSpacing: -0.17,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF192639),
+              color: Colors.black,
+              height: 1.33,
             ),
           ),
           const SizedBox(height: 16),
@@ -52,30 +54,46 @@ class StoryCard extends StatelessWidget {
             textAlign: TextAlign.start,
             style: TextStyle(
               fontSize: 20,
+              letterSpacing: -0.17,
               fontWeight: FontWeight.w400,
-              color: Colors.grey[800],
+              color: Color(0xBF000000),
             ),
           ),
           const SizedBox(height: 30),
           Center(
-            child: ElevatedButton(
-              onPressed: onPressed,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.secondary,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 16,
+            child: Container(
+              width: double.infinity,
+              height: 52,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xFFFFF176),
+                    Color(0xFFFCAC43),
+                  ], // light to dark yellow
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Text(
-                isLast ? 'Get Started' : 'Next',
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+              child: ElevatedButton(
+                onPressed: onPressed,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: EdgeInsets.zero,
+                ),
+                child: Center(
+                  child: Text(
+                    isLast ? 'Get Started' : 'Next',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ),

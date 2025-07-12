@@ -85,8 +85,6 @@ class _StoryBoardScreenState extends State<StoryBoardScreen>
               },
             ),
           ),
-
-          // Animated content card
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
@@ -104,23 +102,41 @@ class _StoryBoardScreenState extends State<StoryBoardScreen>
                     ),
                     child: Opacity(
                       opacity: _animator.cardOpacityAnimation.value,
-                      child: StoryCard(
-                        title: currentStory.title,
-                        description: currentStory.description,
-                        onPressed: () {
-                          if (storyProvider.isLastStory) {
-                            Navigator.pushReplacement(
-                              context,
-                              buildSlideTransition(
-                                AppRoutes.getPage(AppRoutes.loginorregister),
-                              ),
-                            );
-                          } else {
-                            storyProvider.nextStory();
-                          }
-                        },
-                        isLast: storyProvider.isLastStory,
-                        width: screen.widthP(85),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start, // center horizontally
+                        children: [
+                          SizedBox(
+                            width: 108,
+                            height: 108,
+                            child: Image.asset(
+                              'assets/logos/goreto.png', // your logo path here
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+
+                          StoryCard(
+                            title: currentStory.title,
+                            description: currentStory.description,
+                            onPressed: () {
+                              if (storyProvider.isLastStory) {
+                                Navigator.pushReplacement(
+                                  context,
+                                  buildSlideTransition(
+                                    AppRoutes.getPage(
+                                      AppRoutes.loginorregister,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                storyProvider.nextStory();
+                              }
+                            },
+                            isLast: storyProvider.isLastStory,
+                            width: screen.widthP(85),
+                          ),
+                        ],
                       ),
                     ),
                   );
