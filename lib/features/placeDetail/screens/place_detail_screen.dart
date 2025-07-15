@@ -6,6 +6,8 @@ import 'package:goreto/data/providers/review_provider.dart';
 import 'package:goreto/features/reviews/review_list.dart';
 import 'package:provider/provider.dart';
 
+import '../../blog/widgets/post_upload_dialog.dart';
+
 class PlaceDetailScreen extends StatefulWidget {
   final PlaceModel place;
 
@@ -62,14 +64,34 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Place title
-                      Text(
-                        place.name,
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                        ),
+                      // Place title with share icon
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              place.name,
+                              style: const TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.share_outlined, size: 26),
+                            tooltip: 'Share as post',
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (_) => PostUploadDialog(place: place),
+                              );
+                            },
+                          ),
+                        ],
                       ),
+
                       const SizedBox(height: 10),
 
                       // Category

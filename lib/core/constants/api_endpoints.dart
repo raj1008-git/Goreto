@@ -6,6 +6,8 @@ class ApiEndpoints {
   static const String placesByCategory = "$baseUrl/places-by-category";
   static const String userLocation = "$baseUrl/user-location";
   static const String nearbyUsers = "$baseUrl/nearby-users";
+  static const String createPost = "$baseUrl/posts";
+  static const String myPosts = "$baseUrl/posts/mine";
 
   static String imageUrl(String imagePath) => "$imagePath";
 }

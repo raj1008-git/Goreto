@@ -9,7 +9,9 @@ import 'package:goreto/features/chat/providers/chat_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'app.dart';
+import 'data/providers/my_post_provider.dart';
 import 'data/providers/popular_place_provider.dart';
+import 'data/providers/post_providers.dart';
 import 'features/storyboard/providers/story_board_provider.dart';
 
 void main() async {
@@ -27,6 +29,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => PlaceProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
         ChangeNotifierProvider(create: (_) => PopularPlaceProvider()),
+        ChangeNotifierProvider(create: (_) => PostProvider()),
+        ChangeNotifierProvider(create: (_) => MyPostProvider()),
 
         ChangeNotifierProvider(
           create: (_) => ReviewProvider(ReviewApiService(Dio())),

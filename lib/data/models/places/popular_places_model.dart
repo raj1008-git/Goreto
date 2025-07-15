@@ -8,7 +8,8 @@ class PopularPlaceModel {
   final String description;
   final String imagePath;
   final String category;
-  final double? distance; // optional
+  final int categoryId; // ✅ NEW
+  final double? distance;
 
   PopularPlaceModel({
     required this.id,
@@ -18,6 +19,7 @@ class PopularPlaceModel {
     required this.description,
     required this.imagePath,
     required this.category,
+    required this.categoryId, // ✅ NEW
     this.distance,
   });
 
@@ -34,11 +36,13 @@ class PopularPlaceModel {
           ? imageList[0]['image_url']
           : 'https://via.placeholder.com/200x160.png?text=No+Image',
       category: json['category']?['category'] ?? 'Unknown',
+      categoryId: json['category_id'], // ✅ NEW
       distance: json['distance'] != null
           ? (json['distance'] as num).toDouble()
           : null,
     );
   }
+
   PlaceModel toPlaceModel() {
     return PlaceModel(
       id: id,
@@ -48,6 +52,7 @@ class PopularPlaceModel {
       description: description,
       imagePath: imagePath,
       category: category,
+      categoryId: categoryId, // ✅ NEW
       distance: distance,
     );
   }
