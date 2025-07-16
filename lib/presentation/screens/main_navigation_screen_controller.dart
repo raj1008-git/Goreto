@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:goreto/features/maps/screens/maps_screen.dart';
 import 'package:goreto/presentation/screens/chat/chat_home_screen.dart';
 import 'package:goreto/presentation/screens/dashboard/dashboard_screen.dart';
-import 'package:goreto/features/storyboard/screens/story_board.dart';
 import 'package:goreto/presentation/screens/news_feed/news_feed_screen.dart';
 import 'package:goreto/presentation/screens/profile/profile_screen.dart';
-import 'package:goreto/features/maps/screens/maps_screen.dart';
 import 'package:goreto/presentation/widgets/bottom_nav_bar_bottom_painter.dart';
+
 import '../../core/constants/appColors.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -78,7 +78,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildNavItem(icon: Icons.dashboard, index: 0),
-                  _buildNavItem(icon: Icons.article, index: 1),
+                  _buildNavItem(
+                    icon: Icons.keyboard_command_key_rounded,
+                    index: 1,
+                  ),
                   const SizedBox(width: 40), // For FAB
                   _buildNavItem(icon: Icons.chat, index: 3),
                   _buildNavItem(icon: Icons.person, index: 4),

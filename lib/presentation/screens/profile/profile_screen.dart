@@ -3,7 +3,7 @@ import 'package:goreto/data/providers/my_post_provider.dart';
 // Import your post detail screen here
 import 'package:provider/provider.dart';
 
-import '../../../features/blog/widgets/post_details_screen.dart';
+import '../../../features/blog/screens/post_details_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -58,15 +58,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
               final imageUrl = postImagePairs[index].value;
 
               return GestureDetector(
-                onTap: () {
-                  // Navigate to PostDetailScreen, passing postId
-                  Navigator.push(
+                onTap: () async {
+                  final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => PostDetailScreen(postId: postId),
                     ),
                   );
+
+                  if (result == true && mounted) {
+                    // Refresh posts after deletion
+                    Provider.of<MyPostProvider>(
+                      context,
+                      listen: false,
+                    ).fetchMyPosts();
+                  }
                 },
+
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.network(
