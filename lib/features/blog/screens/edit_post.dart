@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../data/datasources/remote/post_api_service.dart';
 import '../../../data/models/post/post_details_provider.dart';
+import '../../../presentation/screens/profile/profile_screen.dart';
 
 class EditPostScreen extends StatefulWidget {
   final PostDetailModel post;
@@ -57,7 +58,10 @@ class _EditPostScreenState extends State<EditPostScreen> {
     setState(() => _isLoading = false);
 
     if (success && mounted) {
-      Navigator.pop(context);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const ProfileScreen()),
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Post updated successfully")),
       );
@@ -74,7 +78,11 @@ class _EditPostScreenState extends State<EditPostScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Edit Post")),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text("Edit Post"),
+        backgroundColor: Colors.white,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -138,8 +146,15 @@ class _EditPostScreenState extends State<EditPostScreen> {
                           color: Colors.white,
                         ),
                       )
-                    : const Icon(Icons.save),
-                label: const Text("Update Post"),
+                    : const Icon(Icons.save, color: Colors.black),
+                label: const Text(
+                  "Update Post",
+                  style: TextStyle(color: Colors.black),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange, // 🔶 Set background to orange
+                ),
+
                 onPressed: _isLoading ? null : _submit,
               ),
             ),
