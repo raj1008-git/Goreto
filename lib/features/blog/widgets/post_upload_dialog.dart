@@ -6,6 +6,7 @@ import 'package:goreto/data/models/places/place_model.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
+import '../../../data/providers/my_post_provider.dart';
 import '../../../data/providers/post_providers.dart';
 
 // Will create in Step 3
@@ -75,6 +76,9 @@ class _PostUploadDialogState extends State<PostUploadDialog> {
     setState(() => _isLoading = false);
 
     if (success) {
+      // Notify the MyPostProvider to refresh posts
+      Provider.of<MyPostProvider>(context, listen: false).fetchMyPosts();
+
       Navigator.pop(context);
       SnackbarHelper.show(context, "Post created successfully.");
     } else {
