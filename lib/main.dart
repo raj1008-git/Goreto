@@ -13,6 +13,7 @@ import 'data/providers/my_post_provider.dart';
 import 'data/providers/popular_place_provider.dart';
 import 'data/providers/post_providers.dart';
 import 'data/providers/post_review_provider.dart';
+import 'data/providers/search_provider.dart';
 import 'features/storyboard/providers/story_board_provider.dart';
 
 void main() async {
@@ -33,6 +34,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => PostProvider()),
         ChangeNotifierProvider(create: (_) => MyPostProvider()),
         ChangeNotifierProvider(create: (_) => PostReviewProvider()),
+        ChangeNotifierProvider(create: (_) => SearchProvider()),
 
         ChangeNotifierProvider(
           create: (_) => ReviewProvider(ReviewApiService(Dio())),

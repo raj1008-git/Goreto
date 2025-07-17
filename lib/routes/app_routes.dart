@@ -10,6 +10,8 @@ import 'package:goreto/presentation/screens/dashboard/dashboard_screen.dart';
 import 'package:goreto/presentation/screens/main_navigation_screen_controller.dart';
 import 'package:page_transition/page_transition.dart';
 
+import '../features/search/widgets/search_screen.dart';
+
 class AppRoutes {
   static const String splash = '/';
   static const String story = '/storyBoard';
@@ -19,6 +21,7 @@ class AppRoutes {
   static const String mainNavigation = '/mainNavigation';
   static const String mapScreen = '/mapScreen';
   static const String placeDetail = '/placeDetail';
+  static const String search = '/search';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -40,6 +43,8 @@ class AppRoutes {
       case placeDetail:
         final place = settings.arguments as PlaceModel;
         return _buildPage(PlaceDetailScreen(place: place));
+      case search:
+        return _buildPage(const SearchScreen());
       default:
         return _errorRoute();
     }

@@ -148,28 +148,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                             ),
                             const SizedBox(height: 16),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              child: Row(
-                                children: const [
-                                  Expanded(
-                                    child: TextField(
-                                      decoration: InputDecoration(
-                                        hintText: 'Search destination',
-                                        border: InputBorder.none,
-                                      ),
-                                    ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pushNamed(
+                                  context,
+                                  '/search',
+                                ); // replace with your route name
+                              },
+                              child: SizedBox(
+                                height: 48,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(30),
                                   ),
-                                  Icon(Icons.search, color: AppColors.primary),
-                                ],
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: Row(
+                                    children: const [
+                                      Expanded(
+                                        child: Text(
+                                          'Search destination',
+                                          style: TextStyle(
+                                            color: Colors.black54,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                      Icon(
+                                        Icons.search,
+                                        color: AppColors.primary,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
+
                             const SizedBox(height: 18),
 
                             SizedBox(

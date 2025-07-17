@@ -1,3 +1,4 @@
+// unchanged imports
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:goreto/core/constants/api_endpoints.dart';
@@ -63,8 +64,7 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Place title
-                      // Place title with share icon
+                      // Title + share button
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -91,7 +91,6 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 10),
 
                       // Category
@@ -104,8 +103,9 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                         ),
                       ),
 
-                      // Description container
                       const SizedBox(height: 24),
+
+                      // Description
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
@@ -157,7 +157,7 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
 
                       const SizedBox(height: 30),
 
-                      // Map preview
+                      // Map
                       Container(
                         height: mapHeight,
                         decoration: BoxDecoration(
@@ -206,7 +206,7 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
               ),
             ),
 
-            // Top Image with back button
+            // Top image with back button
             Positioned(
               top: 0,
               left: 0,
@@ -215,7 +215,6 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // Background image
                   Image.network(
                     imageUrl,
                     fit: BoxFit.cover,
@@ -226,7 +225,6 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                       ),
                     ),
                   ),
-                  // Gradient overlay
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -239,22 +237,12 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                       ),
                     ),
                   ),
-                  // Back button
-                  SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: CircleAvatar(
-                        backgroundColor: Colors.black45,
-                        child: IconButton(
-                          icon: const Icon(
-                            Icons.arrow_back,
-                            color: Colors.white,
-                          ),
-                          onPressed: () => Navigator.pop(context),
-                          tooltip: 'Back',
-                        ),
-                      ),
-                    ),
+
+                  // ✅ Updated smaller back button
+                  const Positioned(
+                    top: 40,
+                    left: 20,
+                    child: _SmallBackButton(),
                   ),
                 ],
               ),
@@ -265,11 +253,31 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
     );
   }
 
-  /// Truncate text by word count and lines for preview
   String _truncateText(String text, int maxLines) {
     final lines = text.split('\n');
     final visibleLines = lines.take(maxLines).join('\n');
     if (lines.length <= maxLines) return text;
     return "$visibleLines...";
+  }
+}
+
+class _SmallBackButton extends StatelessWidget {
+  const _SmallBackButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.black54,
+        shape: BoxShape.circle,
+      ),
+      child: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+        onPressed: () => Navigator.pop(context),
+        tooltip: 'Back',
+        padding: const EdgeInsets.all(8),
+        constraints: const BoxConstraints(),
+      ),
+    );
   }
 }
