@@ -83,7 +83,7 @@ class _LoginOrRegisterScreenState extends State<LoginOrRegisterScreen>
                           CustomButton(
                             text: "Login",
                             onPressed: () {
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                 context,
                                 PageTransition(
                                   type: PageTransitionType.rightToLeftWithFade,
@@ -110,7 +110,7 @@ class _LoginOrRegisterScreenState extends State<LoginOrRegisterScreen>
                           const SizedBox(height: 16),
                           TextButton(
                             onPressed: () {
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                 context,
                                 PageTransition(
                                   type: PageTransitionType.fade,

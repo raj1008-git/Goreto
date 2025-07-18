@@ -96,6 +96,7 @@
 // }
 import 'package:flutter/material.dart';
 import 'package:goreto/data/providers/my_post_provider.dart';
+import 'package:goreto/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 
 import '../../../features/blog/screens/post_details_screen.dart';
@@ -209,6 +210,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 12),
                       const Divider(thickness: 1, color: Colors.grey),
+                      IconButton(
+                        onPressed: () =>
+                            Navigator.pushNamed(context, AppRoutes.groupCreate),
+                        icon: Icon(Icons.group),
+                      ),
                     ],
                   ),
                 ),

@@ -1,6 +1,6 @@
 class ApiEndpoints {
-  static const String baseUrl = "http://10.20.0.107:8000/api";
-  static const String storageBaseUrl = "http://10.20.0.107:8000/storage";
+  static const String baseUrl = "http://192.168.254.13:8000/api";
+  static const String storageBaseUrl = "http://192.168.254.13:8000/storage";
 
   static const String login = "$baseUrl/login";
   static const String placesByCategory = "$baseUrl/places-by-category";
@@ -11,6 +11,7 @@ class ApiEndpoints {
   static const String posts = '$baseUrl/posts';
   static const String tapbookmarks = '$baseUrl/post-bookmarks';
   static const String postBookmarks = '$baseUrl/post-bookmarks';
+  static const String createGroup = "$baseUrl/groups";
 
   static String imageUrl(String imagePath) => "$imagePath";
 }

@@ -10,6 +10,7 @@ import 'package:goreto/presentation/screens/dashboard/dashboard_screen.dart';
 import 'package:goreto/presentation/screens/main_navigation_screen_controller.dart';
 import 'package:page_transition/page_transition.dart';
 
+import '../features/group/group_screen.dart';
 import '../features/search/widgets/search_screen.dart';
 
 class AppRoutes {
@@ -22,6 +23,7 @@ class AppRoutes {
   static const String mapScreen = '/mapScreen';
   static const String placeDetail = '/placeDetail';
   static const String search = '/search';
+  static const String groupCreate = '/groupCreate';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -45,6 +47,9 @@ class AppRoutes {
         return _buildPage(PlaceDetailScreen(place: place));
       case search:
         return _buildPage(const SearchScreen());
+      case groupCreate:
+        return _buildPage(CreateGroupScreen());
+
       default:
         return _errorRoute();
     }
@@ -69,6 +74,9 @@ class AppRoutes {
         return const MapsScreen();
       case placeDetail:
         return PlaceDetailScreen(place: arguments as PlaceModel);
+      case groupCreate:
+        return CreateGroupScreen();
+
       default:
         return const Scaffold(body: Center(child: Text("404")));
     }
