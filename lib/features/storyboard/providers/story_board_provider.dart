@@ -24,10 +24,22 @@ class StoryBoardProvider extends ChangeNotifier {
     ),
   ];
 
+  // Getters
   int get currentStoryIndex => _currentStoryIndex;
   StoryItem get currentStory => _stories[_currentStoryIndex];
   int get storiesCount => _stories.length;
   bool get isLastStory => _currentStoryIndex == _stories.length - 1;
+
+  // Add the missing stories getter
+  List<StoryItem> get stories => _stories;
+
+  // Add method to get story by index
+  StoryItem getStoryAt(int index) {
+    if (index >= 0 && index < _stories.length) {
+      return _stories[index];
+    }
+    throw RangeError('Story index $index is out of range');
+  }
 
   void nextStory() {
     if (_currentStoryIndex < _stories.length - 1) {
@@ -37,6 +49,22 @@ class StoryBoardProvider extends ChangeNotifier {
     // Note: Navigation logic is still handled by the UI (screen)
     // because it involves `BuildContext` and `Navigator`.
     // The provider only exposes the state (`isLastStory`).
+  }
+
+  // Method to go to previous story
+  void previousStory() {
+    if (_currentStoryIndex > 0) {
+      _currentStoryIndex--;
+      notifyListeners();
+    }
+  }
+
+  // Method to go to specific story
+  void goToStory(int index) {
+    if (index >= 0 && index < _stories.length) {
+      _currentStoryIndex = index;
+      notifyListeners();
+    }
   }
 
   // Potentially add a method to reset for replaying stories if needed

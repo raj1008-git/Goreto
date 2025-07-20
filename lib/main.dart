@@ -11,8 +11,10 @@ import 'package:provider/provider.dart';
 
 import 'app.dart';
 import 'data/datasources/remote/group_service_api.dart';
+import 'data/providers/category_filter_provider.dart';
 import 'data/providers/group_provider.dart';
 import 'data/providers/my_post_provider.dart';
+import 'data/providers/optimized_place_provider.dart';
 import 'data/providers/popular_place_provider.dart';
 import 'data/providers/post_providers.dart';
 import 'data/providers/post_review_provider.dart';
@@ -27,7 +29,7 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   runApp(
     MultiProvider(
       providers: [
@@ -40,6 +42,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => MyPostProvider()),
         ChangeNotifierProvider(create: (_) => PostReviewProvider()),
         ChangeNotifierProvider(create: (_) => SearchProvider()),
+        ChangeNotifierProvider(create: (_) => OptimizedPlaceProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryFilterProvider()),
         ChangeNotifierProvider(
           create: (_) => GroupProvider(GroupService(Dio())),
         ),
