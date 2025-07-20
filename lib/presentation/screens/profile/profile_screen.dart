@@ -238,37 +238,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // void _showLogoutConfirmation() {
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) => AlertDialog(
-  //       title: const Text('Logout'),
-  //       content: const Text('Are you sure you want to logout?'),
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () => Navigator.pop(context),
-  //           child: const Text('Cancel'),
-  //         ),
-  //         ElevatedButton(
-  //           onPressed: () async {
-  //             Navigator.pop(context);
-  //             final authProvider = Provider.of<AuthProvider>(
-  //               context,
-  //               listen: false,
-  //             );
-  //             await authProvider.logout();
-  //             if (mounted) {
-  //               Navigator.pushReplacementNamed(context, AppRoutes.login);
-  //             }
-  //           },
-  //           style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-  //           child: const Text('Logout', style: TextStyle(color: Colors.white)),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

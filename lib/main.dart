@@ -13,6 +13,7 @@ import 'app.dart';
 import 'data/datasources/remote/group_service_api.dart';
 import 'data/providers/category_filter_provider.dart';
 import 'data/providers/group_provider.dart';
+import 'data/providers/like_and_comment_provider.dart';
 import 'data/providers/my_post_provider.dart';
 import 'data/providers/optimized_place_provider.dart';
 import 'data/providers/popular_place_provider.dart';
@@ -44,6 +45,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => SearchProvider()),
         ChangeNotifierProvider(create: (_) => OptimizedPlaceProvider()),
         ChangeNotifierProvider(create: (_) => CategoryFilterProvider()),
+        ChangeNotifierProvider(create: (_) => LikeCommentProvider()),
+
         ChangeNotifierProvider(
           create: (_) => GroupProvider(GroupService(Dio())),
         ),

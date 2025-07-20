@@ -10,7 +10,7 @@ class CategoryFilterApiService {
 
   Future<List<PlaceModel>> getPlacesByCategory({
     required String category,
-    int limit = 10,
+    int limit = 50,
   }) async {
     final storage = SecureStorageService();
     final token = await storage.read('access_token');
