@@ -75,4 +75,21 @@ class ChatApiService {
       throw Exception('Unexpected error: $e');
     }
   }
+
+  Future<List<MessageModel>> fetchMessages(int chatId) async {
+    final token = await SecureStorageService().read('access_token');
+
+    final response = await dio.get(
+      "${ApiEndpoints.baseUrl}/chats/$chatId",
+      options: Options(
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      ),
+    );
+
+    final List<dynamic> messagesData = response.data['messages'];
+    return messagesData.map((e) => MessageModel.fromJson(e)).toList();
+  }
 }

@@ -1,8 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:goreto/core/constants/api_endpoints.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/services/pusher_service.dart';
+import '../../core/services/secure_storage_service.dart';
 import '../../data/datasources/remote/chat_api_service.dart';
 import '../../data/models/chat/chat_models.dart';
 import '../../data/models/chat/message_model.dart';
@@ -28,15 +31,48 @@ class _OneOnOneChatScreenState extends State<OneOnOneChatScreen> {
   final ScrollController _scrollController = ScrollController();
   late ChatUserModel otherUser;
   late ChatApiService _chatApiService;
+  late PusherService _pusherService;
 
   List<MessageModel> messages = [];
   bool _isLoading = false;
 
+  void _loadMessages() async {
+    final chatMessages = await _chatApiService.fetchMessages(widget.chat.id);
+    setState(() {
+      messages = chatMessages; // Assuming `messages` is List<MessageModel>
+    });
+  }
+
+  @override
   @override
   void initState() {
     super.initState();
     _initializeOtherUser();
     _chatApiService = ChatApiService(Dio());
+    _loadMessages();
+
+    // Use an anonymous async function to await token
+    (() async {
+      final storage = SecureStorageService();
+      final authToken = await storage.read('access_token') ?? '';
+
+      _pusherService = PusherService(
+        apiUrl: ApiEndpoints.baseUrl,
+        pusherKey: 'e7d5c39c702fe12df9e2',
+        cluster: 'ap2',
+        authToken: authToken,
+      );
+
+      _pusherService.onNewMessage = (data) {
+        final newMessage = MessageModel.fromJson(data);
+        setState(() {
+          messages.add(newMessage);
+          _scrollToBottom();
+        });
+      };
+
+      _pusherService.init(widget.chat.id.toString());
+    })();
   }
 
   void _initializeOtherUser() {
@@ -54,7 +90,19 @@ class _OneOnOneChatScreenState extends State<OneOnOneChatScreen> {
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
+    _pusherService.disconnect(widget.chat.id.toString());
+
     super.dispose();
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
   }
 
   @override
@@ -549,18 +597,6 @@ class _OneOnOneChatScreenState extends State<OneOnOneChatScreen> {
 
       _showErrorSnackBar('Failed to send message: ${e.toString()}');
     }
-  }
-
-  void _scrollToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    });
   }
 
   void _showErrorSnackBar(String message) {
