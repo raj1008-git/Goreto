@@ -6,7 +6,6 @@ import 'package:goreto/data/datasources/remote/review_api_service.dart';
 import 'package:goreto/data/providers/auth_provider.dart';
 import 'package:goreto/data/providers/place_provider.dart';
 import 'package:goreto/data/providers/review_provider.dart';
-import 'package:goreto/features/chat/providers/chat_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'app.dart';
@@ -16,6 +15,7 @@ import 'data/providers/activity_provider.dart';
 import 'data/providers/category_filter_provider.dart';
 import 'data/providers/group_provider.dart';
 import 'data/providers/like_and_comment_provider.dart';
+import 'data/providers/location_provider.dart';
 import 'data/providers/my_post_provider.dart';
 import 'data/providers/optimized_place_provider.dart';
 import 'data/providers/popular_place_provider.dart';
@@ -39,7 +39,6 @@ void main() async {
         ChangeNotifierProvider(create: (_) => StoryBoardProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => PlaceProvider()),
-        ChangeNotifierProvider(create: (_) => ChatProvider()),
         ChangeNotifierProvider(create: (_) => PopularPlaceProvider()),
         ChangeNotifierProvider(create: (_) => PostProvider()),
         ChangeNotifierProvider(create: (_) => MyPostProvider()),
@@ -48,7 +47,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => OptimizedPlaceProvider()),
         ChangeNotifierProvider(create: (_) => CategoryFilterProvider()),
         ChangeNotifierProvider(create: (_) => LikeCommentProvider()),
-
+        ChangeNotifierProvider(create: (_) => LocationProvider()),
         ChangeNotifierProvider(
           create: (_) => GroupProvider(GroupService(Dio())),
         ),
