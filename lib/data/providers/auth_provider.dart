@@ -23,6 +23,7 @@ class AuthProvider extends ChangeNotifier {
 
       await _storage.write('access_token', response.accessToken);
       await _storage.write('token_type', response.tokenType);
+      await _storage.write('user_id', response.user.id.toString());
     } catch (e) {
       rethrow;
     } finally {

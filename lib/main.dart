@@ -13,6 +13,7 @@ import 'data/datasources/remote/activity_api_service.dart';
 import 'data/datasources/remote/group_service_api.dart';
 import 'data/providers/activity_provider.dart';
 import 'data/providers/category_filter_provider.dart';
+import 'data/providers/chat_provider.dart';
 import 'data/providers/group_provider.dart';
 import 'data/providers/like_and_comment_provider.dart';
 import 'data/providers/location_provider.dart';
@@ -48,6 +49,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => CategoryFilterProvider()),
         ChangeNotifierProvider(create: (_) => LikeCommentProvider()),
         ChangeNotifierProvider(create: (_) => LocationProvider()),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
         ChangeNotifierProvider(
           create: (_) => GroupProvider(GroupService(Dio())),
         ),
