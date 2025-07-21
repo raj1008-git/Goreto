@@ -1,3 +1,5 @@
+// lib/data/datasources/remote/profile_api_service.dart
+
 import 'package:dio/dio.dart';
 import 'package:goreto/core/constants/api_endpoints.dart';
 import 'package:goreto/core/services/secure_storage_service.dart';
@@ -29,10 +31,12 @@ class ProfileApiService {
 
       if (response.statusCode == 200 &&
           response.data['profile_picture'] != null) {
-        return response.data['profile_picture'];
+        // Extract the URL from the nested profile_picture object
+        return response.data['profile_picture']['url'] as String?;
       }
       return null;
     } catch (e) {
+      print('Error fetching profile picture: $e');
       // Profile picture not found or error
       return null;
     }
@@ -83,7 +87,7 @@ class ProfileApiService {
     }
 
     try {
-      await dio.post(
+      final response = await dio.post(
         ApiEndpoints.changePassword,
         data: {
           'current_password': currentPassword,
@@ -97,8 +101,40 @@ class ProfileApiService {
           },
         ),
       );
+
+      // Check if the response was successful
+      if (response.statusCode != 200) {
+        throw Exception('Failed to change password');
+      }
     } catch (e) {
-      throw Exception('Error changing password: $e');
+      if (e is DioException) {
+        // Handle different error status codes
+        if (e.response?.statusCode == 400) {
+          final errorData = e.response?.data;
+          if (errorData is Map && errorData.containsKey('message')) {
+            throw Exception(errorData['message']);
+          } else if (errorData is Map && errorData.containsKey('errors')) {
+            // Handle validation errors
+            final errors = errorData['errors'] as Map;
+            final firstError = errors.values.first;
+            if (firstError is List && firstError.isNotEmpty) {
+              throw Exception(firstError.first);
+            }
+          }
+          throw Exception('Invalid request. Please check your passwords.');
+        } else if (e.response?.statusCode == 401) {
+          throw Exception('Current password is incorrect');
+        } else if (e.response?.statusCode == 422) {
+          throw Exception(
+            'Password validation failed. New password may not meet requirements.',
+          );
+        } else {
+          final errorMessage =
+              e.response?.data['message'] ?? 'Failed to change password';
+          throw Exception(errorMessage);
+        }
+      }
+      throw Exception('Network error. Please try again.');
     }
   }
 }

@@ -203,7 +203,7 @@ class PostContent {
     // Fix localhost URL if needed
     String rawUrl = json['content_url'] ?? '';
     String fixedUrl = rawUrl.replaceFirst(
-      'localhost',
+      '${ApiEndpoints.ip}',
       '${ApiEndpoints.ip}',
     ); // Use your IP
 

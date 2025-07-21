@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:goreto/data/datasources/remote/auth_api_service.dart';
 import 'package:goreto/data/models/auth/login_response_model.dart';
+
 import '../../../core/services/secure_storage_service.dart';
 
 class AuthProvider extends ChangeNotifier {
@@ -31,8 +32,12 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> logout() async {
-    _user = null;
-    await _storage.clear();
-    notifyListeners();
+    try {
+      _user = null;
+      await _storage.clear();
+      notifyListeners();
+    } catch (e) {
+      throw Exception('Failed to logout: ${e.toString()}');
+    }
   }
 }

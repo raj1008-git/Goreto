@@ -769,7 +769,6 @@ import '../../../core/constants/category_class.dart';
 import '../../../core/constants/dashboad_play.dart';
 import '../../../data/providers/category_filter_provider.dart';
 import '../../../data/providers/popular_place_provider.dart';
-import '../../widgets/popular_place_card.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -1199,30 +1198,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                           ),
 
-                          const SizedBox(height: 24),
-
-                          // Popular Places Nearby Section
-                          const Text(
-                            "Popular Places Nearby",
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          SizedBox(
-                            height: 230,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: popularPlaces.length,
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(width: 12),
-                              itemBuilder: (context, index) {
-                                final popularPlace = popularPlaces[index];
-                                return PopularPlaceCard(place: popularPlace);
-                              },
-                            ),
-                          ),
+                          // const SizedBox(height: 24),
+                          //
+                          // // Popular Places Nearby Section
+                          // const Text(
+                          //   "Popular Places Nearby",
+                          //   style: TextStyle(
+                          //     fontSize: 20,
+                          //     fontWeight: FontWeight.bold,
+                          //   ),
+                          // ),
+                          // const SizedBox(height: 12),
+                          // SizedBox(
+                          //   height: 230,
+                          //   child: ListView.separated(
+                          //     scrollDirection: Axis.horizontal,
+                          //     itemCount: popularPlaces.length,
+                          //     separatorBuilder: (context, index) =>
+                          //         const SizedBox(width: 12),
+                          //     itemBuilder: (context, index) {
+                          //       final popularPlace = popularPlaces[index];
+                          //       return PopularPlaceCard(place: popularPlace);
+                          //     },
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),

@@ -1,6 +1,6 @@
 <!-- android/app/src/main/res/xml/network_security_config.xml -->
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">10.20.0.107</domain>
+        <domain includeSubdomains="true">110.34.1.123</domain>
     </domain-config>
 </network-security-config>

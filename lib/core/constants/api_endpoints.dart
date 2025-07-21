@@ -21,10 +21,11 @@
 //   static String imageUrl(String imagePath) => "$imagePath";
 // }
 // api_endpoints.dart
+// http://110.34.1.123:8080
 class ApiEndpoints {
-  static const String ip = "10.20.0.107";
-  static const String baseUrl = "http://10.20.0.107:8000/api";
-  static const String storageBaseUrl = "http://10.20.0.107:8000/storage";
+  static const String ip = "110.34.1.123";
+  static const String baseUrl = "http://110.34.1.123:8080/api";
+  static const String storageBaseUrl = "http://110.34.1.123:8080/storage";
 
   static const String login = "$baseUrl/login";
   static const String placesByCategory = "$baseUrl/places-by-category";
@@ -36,6 +37,7 @@ class ApiEndpoints {
   static const String tapbookmarks = '$baseUrl/post-bookmarks';
   static const String postBookmarks = '$baseUrl/post-bookmarks';
   static const String createGroup = "$baseUrl/groups";
+  static const String activityStatus = "$baseUrl/activity-status";
 
   // Like endpoints
   static const String postsLike = '$baseUrl/posts-like';
