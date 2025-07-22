@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:goreto/core/constants/api_endpoints.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/constants/api_endpoints.dart';
 import '../../core/services/pusher_service.dart';
 import '../../core/services/secure_storage_service.dart';
 import '../../data/datasources/remote/chat_api_service.dart';
@@ -32,47 +32,147 @@ class _OneOnOneChatScreenState extends State<OneOnOneChatScreen> {
   late ChatUserModel otherUser;
   late ChatApiService _chatApiService;
   late PusherService _pusherService;
-
+  bool _isPusherInitialized = false;
   List<MessageModel> messages = [];
   bool _isLoading = false;
 
-  void _loadMessages() async {
-    final chatMessages = await _chatApiService.fetchMessages(widget.chat.id);
-    setState(() {
-      messages = chatMessages; // Assuming `messages` is List<MessageModel>
-    });
-  }
-
-  @override
   @override
   void initState() {
     super.initState();
     _initializeOtherUser();
     _chatApiService = ChatApiService(Dio());
     _loadMessages();
+    _initializePusher();
+  }
 
-    // Use an anonymous async function to await token
-    (() async {
+  Future<void> _initializePusher() async {
+    try {
       final storage = SecureStorageService();
-      final authToken = await storage.read('access_token') ?? '';
+      final authToken = await storage.read('access_token');
+
+      if (authToken == null) {
+        print('❌ No auth token found for Pusher');
+        return;
+      }
+
+      print('🚀 Initializing Pusher for chat ${widget.chat.id}');
 
       _pusherService = PusherService(
         apiUrl: ApiEndpoints.baseUrl,
-        pusherKey: 'e7d5c39c702fe12df9e2',
+        pusherKey: 'b788ecec8a643e0034b6', // Your actual Pusher key
         cluster: 'ap2',
         authToken: authToken,
       );
 
-      _pusherService.onNewMessage = (data) {
-        final newMessage = MessageModel.fromJson(data);
+      // Set up message handler BEFORE initializing
+      _pusherService!.onNewMessage = _handleNewMessage;
+
+      // Initialize Pusher
+      await _pusherService!.init(widget.chat.id.toString());
+
+      if (mounted) {
         setState(() {
-          messages.add(newMessage);
+          _isPusherInitialized = true;
+        });
+      }
+
+      print('✅ Pusher initialized successfully');
+    } catch (e) {
+      print('❌ Failed to initialize Pusher: $e');
+      _showErrorSnackBar('Real-time messaging unavailable');
+    }
+  }
+
+  void _handleNewMessage(Map<String, dynamic> data) {
+    try {
+      print('📨 Raw message data received: $data');
+      print('📨 Data type: ${data.runtimeType}');
+      print('📨 Data keys: ${data.keys.toList()}');
+
+      // Debug: Print each key-value pair
+      data.forEach((key, value) {
+        print('📨 $key: $value (${value.runtimeType})');
+      });
+
+      Map<String, dynamic> messageData = data;
+
+      // Check for different possible data structures
+      if (data.containsKey('message') && data['message'] is Map) {
+        print('📨 Found message wrapper, extracting...');
+        messageData = Map<String, dynamic>.from(data['message']);
+      } else if (data.containsKey('data') && data['data'] is Map) {
+        print('📨 Found data wrapper, extracting...');
+        messageData = Map<String, dynamic>.from(data['data']);
+      } else if (data.containsKey('messageData')) {
+        print('📨 Found messageData wrapper, extracting...');
+        messageData = Map<String, dynamic>.from(data['messageData']);
+      }
+
+      print('📨 Processing messageData: $messageData');
+
+      // Try to create MessageModel from the data
+      final newMessage = MessageModel.fromJson(messageData);
+      print(
+        '📨 Created message model: ${newMessage.id} - ${newMessage.messages}',
+      );
+
+      if (mounted) {
+        setState(() {
+          // Check if message already exists to avoid duplicates
+          final exists = messages.any((msg) => msg.id == newMessage.id);
+          if (!exists) {
+            messages.add(newMessage);
+            print(
+              '📨 Added new message to UI. Total messages: ${messages.length}',
+            );
+          } else {
+            print('📨 Message already exists, skipping duplicate');
+          }
+        });
+
+        // Scroll to bottom when new message arrives
+        WidgetsBinding.instance.addPostFrameCallback((_) {
           _scrollToBottom();
         });
-      };
+      }
+    } catch (e, stackTrace) {
+      print('❌ Error handling new message: $e');
+      print('❌ Stack trace: $stackTrace');
+      print('❌ Raw data: $data');
 
-      _pusherService.init(widget.chat.id.toString());
-    })();
+      // Try to handle the error gracefully
+      _showErrorSnackBar('Failed to process new message');
+    }
+  }
+
+  void _loadMessages() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      final chatMessages = await _chatApiService.fetchMessages(widget.chat.id);
+
+      if (mounted) {
+        setState(() {
+          messages = chatMessages;
+          _isLoading = false;
+        });
+
+        // Scroll to bottom after loading messages
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollToBottom();
+        });
+      }
+    } catch (e) {
+      print('❌ Error loading messages: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        _showErrorSnackBar('Failed to load messages');
+      }
+    }
   }
 
   void _initializeOtherUser() {
@@ -90,8 +190,10 @@ class _OneOnOneChatScreenState extends State<OneOnOneChatScreen> {
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
-    _pusherService.disconnect(widget.chat.id.toString());
-
+    // _pusherService.disconnect(widget.chat.id.toString());
+    if (_pusherService != null) {
+      _pusherService!.disconnect(widget.chat.id.toString());
+    }
     super.dispose();
   }
 
@@ -112,6 +214,34 @@ class _OneOnOneChatScreenState extends State<OneOnOneChatScreen> {
       appBar: _buildAppBar(),
       body: Column(
         children: [
+          if (!_isPusherInitialized)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              color: Colors.orange.shade100,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 12,
+                    height: 12,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 1.5,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.orange.shade600,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Connecting to real-time messaging...',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.orange.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           // Messages area
           Expanded(child: _buildMessagesArea()),
           // Message input area
@@ -578,14 +708,19 @@ class _OneOnOneChatScreenState extends State<OneOnOneChatScreen> {
 
       final response = await _chatApiService.sendMessage(request);
 
-      // Update the temporary message with the real one from server
       setState(() {
-        final tempIndex = messages.length - 1;
-        messages[tempIndex] = response.data;
+        // Remove the last message (temporary one)
+        messages.removeLast();
+        // Add the real message from server
+        messages.add(response.data);
         _isLoading = false;
       });
+
+      print('✅ Message sent successfully: ${response.data.id}');
     } catch (e) {
-      // Handle error - update temp message to show error
+      print('❌ Failed to send message: $e');
+
+      // Update temp message to show error
       setState(() {
         final tempIndex = messages.length - 1;
         messages[tempIndex] = tempMessage.copyWith(
@@ -595,18 +730,20 @@ class _OneOnOneChatScreenState extends State<OneOnOneChatScreen> {
         _isLoading = false;
       });
 
-      _showErrorSnackBar('Failed to send message: ${e.toString()}');
+      _showErrorSnackBar('Failed to send message');
     }
   }
 
   void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
   }
 
   void _onEmojiTap() {
