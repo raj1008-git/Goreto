@@ -38,6 +38,9 @@ class ApiEndpoints {
   static const String postBookmarks = '$baseUrl/post-bookmarks';
   static const String createGroup = "$baseUrl/groups";
   static const String activityStatus = "$baseUrl/activity-status";
+  static const String myGroups = "$baseUrl/my-groups";
+  static const String latestGroups = "$baseUrl/latest-groups"; // For future use
+  static const String joinableGroups = "$baseUrl/joinable-groups";
 
   // Like endpoints
   static const String postsLike = '$baseUrl/posts-like';

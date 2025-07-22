@@ -51,8 +51,9 @@ void main() async {
         ChangeNotifierProvider(create: (_) => LocationProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
         ChangeNotifierProvider(
-          create: (_) => GroupProvider(GroupService(Dio())),
+          create: (_) => GroupProvider(GroupApiService(Dio())),
         ),
+
         ChangeNotifierProvider(
           create: (_) => ReviewProvider(ReviewApiService(Dio())),
         ),

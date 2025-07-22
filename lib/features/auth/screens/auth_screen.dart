@@ -7,6 +7,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/appColors.dart';
+import '../../../core/services/login_count_service.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_textfield.dart';
 
@@ -22,7 +23,7 @@ class _AuthScreenState extends State<AuthScreen> {
   late bool isLogin;
   bool obscurePassword = true;
   bool obscureConfirmPassword = true;
-
+  final LoginCountService _loginCountService = LoginCountService();
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -164,6 +165,77 @@ class _AuthScreenState extends State<AuthScreen> {
                   ],
 
                   const SizedBox(height: 8),
+                  // CustomButton(
+                  //   text: isLogin ? "Login" : "Register",
+                  //   onPressed: () async {
+                  //     if (isLogin) {
+                  //       final authProvider = Provider.of<AuthProvider>(
+                  //         context,
+                  //         listen: false,
+                  //       );
+                  //       final email = emailController.text.trim();
+                  //       final password = passwordController.text.trim();
+                  //
+                  //       if (email.isEmpty || password.isEmpty) {
+                  //         SnackbarHelper.show(
+                  //           context,
+                  //           "Please enter email and password",
+                  //         );
+                  //
+                  //         return;
+                  //       }
+                  //
+                  //       // Show loading dialog
+                  //       showDialog(
+                  //         context: context,
+                  //         barrierDismissible: false,
+                  //         builder: (_) => const Center(child: AppLoader()),
+                  //       );
+                  //
+                  //       try {
+                  //         await authProvider.login(email, password);
+                  //         if (!context.mounted) return;
+                  //
+                  //         // Close loader
+                  //         Navigator.of(context).pop();
+                  //
+                  //         // Show beautiful snackbar
+                  //         final message = authProvider.user != null
+                  //             ? "Welcome ${authProvider.user!.name}!"
+                  //             : "Login successful";
+                  //
+                  //         SnackbarHelper.show(context, message);
+                  //
+                  //         // Navigate with fade transition
+                  //         Navigator.pushReplacement(
+                  //           context,
+                  //           PageTransition(
+                  //             child: AppRoutes.getPage(
+                  //               AppRoutes.mainNavigation,
+                  //             ),
+                  //             type: PageTransitionType.scale,
+                  //             alignment: Alignment.center,
+                  //             duration: const Duration(milliseconds: 800),
+                  //           ),
+                  //         );
+                  //       } catch (e) {
+                  //         Navigator.of(context).pop(); // Close loader
+                  //         SnackbarHelper.show(
+                  //           context,
+                  //           "Login failed: ${e.toString()}",
+                  //         );
+                  //       }
+                  //     } else {
+                  //       SnackbarHelper.show(
+                  //         context,
+                  //         "Registration not implemented yet.",
+                  //       );
+                  //     }
+                  //   },
+                  //
+                  //   backgroundColor: AppColors.primary,
+                  //   textColor: Colors.white,
+                  // ),
                   CustomButton(
                     text: isLogin ? "Login" : "Register",
                     onPressed: () async {
@@ -180,7 +252,6 @@ class _AuthScreenState extends State<AuthScreen> {
                             context,
                             "Please enter email and password",
                           );
-
                           return;
                         }
 
@@ -195,13 +266,20 @@ class _AuthScreenState extends State<AuthScreen> {
                           await authProvider.login(email, password);
                           if (!context.mounted) return;
 
+                          // Increment login count after successful login
+                          final loginCount = await _loginCountService
+                              .incrementLoginCount();
+                          print(
+                            'Login count: $loginCount',
+                          ); // Optional: for debugging
+
                           // Close loader
                           Navigator.of(context).pop();
 
                           // Show beautiful snackbar
                           final message = authProvider.user != null
-                              ? "Welcome ${authProvider.user!.name}!"
-                              : "Login successful";
+                              ? "Welcome ${authProvider.user!.name}! (Login #$loginCount)"
+                              : "Login successful! (Login #$loginCount)";
 
                           SnackbarHelper.show(context, message);
 
@@ -231,11 +309,9 @@ class _AuthScreenState extends State<AuthScreen> {
                         );
                       }
                     },
-
                     backgroundColor: AppColors.primary,
                     textColor: Colors.white,
                   ),
-
                   SizedBox(height: 50),
 
                   Row(

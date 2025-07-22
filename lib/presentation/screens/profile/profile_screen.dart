@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/constants/appColors.dart';
 import '../../../core/services/dio_client.dart';
+import '../../../core/services/login_count_service.dart';
 import '../../../data/datasources/remote/profile_api_service.dart';
 import '../../../data/models/auth/login_response_model.dart';
 import '../../../data/providers/activity_provider.dart';
@@ -21,6 +22,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   ProfileApiService? _profileApiService;
+  final LoginCountService _loginCountService = LoginCountService();
   String? _profileImageUrl;
   UserModel? _currentUser;
   bool _isLoadingProfile = false;
@@ -123,6 +125,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
       case 'settings':
         // Navigate to settings screen
         // Navigator.pushNamed(context, AppRoutes.settings);
+        break;
+      case 'reset_login_count':
+        // Show confirmation dialog before resetting
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Reset Login Count'),
+              content: const Text(
+                'Are you sure you want to reset your login count to 0? This action cannot be undone.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close dialog
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    // Reset the login count
+                    await _loginCountService.resetLoginCount();
+                    Navigator.of(context).pop(); // Close dialog
+
+                    // Show success message
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Login count has been reset to 0'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    'Reset',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
         break;
       case 'logout':
         _showLogoutConfirmation();
@@ -777,6 +820,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                   ),
+                  PopupMenuItem<String>(
+                    value: 'reset_login_count',
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.purple.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.refresh_outlined,
+                            color: Colors.purple,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Reset Login Count',
+                          style: TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                  ),
                   const PopupMenuDivider(),
                   PopupMenuItem<String>(
                     value: 'logout',
@@ -1001,43 +1068,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(height: 20),
 
                         // Action Button
-                        Container(
-                          width: double.infinity,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: AppColors.secondary,
-                            borderRadius: BorderRadius.circular(25),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.secondary.withOpacity(0.3),
-                                blurRadius: 15,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
-                          ),
-                          child: ElevatedButton.icon(
-                            onPressed: () => Navigator.pushNamed(
-                              context,
-                              AppRoutes.groupCreate,
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                            ),
-                            icon: const Icon(Icons.add, color: Colors.white),
-                            label: const Text(
-                              'Create Group',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                   ),
