@@ -1,10 +1,12 @@
 // lib/data/datasources/remote/popular_places_api_service.dart
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:goreto/core/constants/api_endpoints.dart';
 import 'package:goreto/core/services/secure_storage_service.dart';
+import 'package:goreto/data/models/places/place_model.dart';
 
-import '../../models/places/place_model.dart';
+import '../../../core/utils/place_parser.dart';
 
 class PopularPlacesApiService {
   final Dio dio;
@@ -31,7 +33,6 @@ class PopularPlacesApiService {
         'latitude': latitude,
         'longitude': longitude,
         'radius': radius,
-        // 'limit': limit,
         'limit': '',
         'category': '',
       },
@@ -45,7 +46,7 @@ class PopularPlacesApiService {
 
     if (response.statusCode == 200) {
       final List<dynamic> data = response.data['data'];
-      return data.map<PlaceModel>((json) => PlaceModel.fromJson(json)).toList();
+      return await compute(parsePlaces, data); // decode in isolate
     } else {
       throw Exception('Failed to fetch popular places');
     }
