@@ -340,22 +340,115 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
     );
   }
 
-  Widget _buildCategoryDropdown() {
+  Widget _buildCleanDropdown() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      height: 46,
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade100,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: _selectedCategory,
-          hint: const Text('Select Category'),
+          hint: Padding(
+            padding: const EdgeInsets.only(left: 16),
+            child: Row(
+              children: [
+                Icon(Icons.tune, size: 18, color: Colors.grey.shade500),
+                const SizedBox(width: 10),
+                Text(
+                  'Choose Category',
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          ),
           isExpanded: true,
+          icon: Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Icon(
+              Icons.keyboard_arrow_down,
+              color: Colors.grey.shade400,
+              size: 22,
+            ),
+          ),
+          dropdownColor: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          elevation: 4,
+          style: TextStyle(
+            color: Colors.grey.shade800,
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+          ),
+          selectedItemBuilder: (context) {
+            return _categories.map((category) {
+              return Padding(
+                padding: const EdgeInsets.only(left: 16),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.place_outlined,
+                      size: 18,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        category,
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList();
+          },
           items: _categories.map((category) {
             return DropdownMenuItem(
               value: category,
-              child: Text(category, overflow: TextOverflow.ellipsis),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.place_outlined,
+                      size: 18,
+                      color: Colors.grey.shade600,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        category,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             );
           }).toList(),
           onChanged: _isLoadingPlaces
@@ -379,62 +472,170 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
       left: 0,
       right: 0,
       child: Container(
-        padding: const EdgeInsets.all(16),
-        color: Colors.black54,
-        child: const Row(
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.shade200,
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-              width: 20,
-              height: 20,
+              width: 18,
+              height: 18,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Theme.of(context).primaryColor,
+                ),
               ),
             ),
-            SizedBox(width: 12),
-            Text('Loading places...', style: TextStyle(color: Colors.white)),
+            const SizedBox(width: 12),
+            Text(
+              'Finding places...',
+              style: TextStyle(
+                color: Colors.grey.shade700,
+                fontWeight: FontWeight.w500,
+                fontSize: 15,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Image.asset('assets/logos/goreto.png', height: 32),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _isLoadingCategories
-                  ? const Center(child: CircularProgressIndicator())
-                  : _buildCategoryDropdown(),
+  PreferredSizeWidget _buildCleanAppBar() {
+    return AppBar(
+      backgroundColor: Colors.white,
+      elevation: 0,
+      surfaceTintColor: Colors.white,
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back_ios, color: Colors.grey.shade700, size: 20),
+        onPressed: () => Navigator.pop(context),
+      ),
+      title: Row(
+        children: [
+          // Logo section
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(8),
             ),
-          ],
-        ),
-        actions: [
-          if (_currentPosition != null)
-            IconButton(
-              icon: const Icon(Icons.my_location),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset('assets/logos/goreto.png', height: 22, width: 22),
+                const SizedBox(width: 8),
+                Text(
+                  'Places',
+                  style: TextStyle(
+                    color: Colors.grey.shade800,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+
+          // Dropdown
+          Expanded(
+            child: _isLoadingCategories
+                ? Container(
+                    height: 46,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Center(
+                      child: SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.grey.shade400,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                : _buildCleanDropdown(),
+          ),
+        ],
+      ),
+      actions: [
+        if (_currentPosition != null)
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: IconButton(
+              icon: Icon(
+                Icons.my_location,
+                color: Colors.grey.shade700,
+                size: 20,
+              ),
               onPressed: () => _moveCameraToLocation(_center),
               tooltip: 'Go to my location',
             ),
-        ],
-      ),
+          ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: _buildCleanAppBar(),
       body: Stack(
         children: [
           if (_isLoadingLocation)
-            const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Getting your location...'),
-                ],
+            Container(
+              color: Colors.white,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Theme.of(context).primaryColor,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Getting your location...',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'This may take a moment',
+                      style: TextStyle(
+                        color: Colors.grey.shade500,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             )
           else
@@ -453,12 +654,19 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
       floatingActionButton: _places.isNotEmpty
           ? FloatingActionButton.extended(
               onPressed: _fitCameraToMarkers,
-              icon: const Icon(Icons.zoom_out_map),
-              label: Text('Show All (${_places.length})'),
+              backgroundColor: Theme.of(context).primaryColor,
+              foregroundColor: Colors.white,
+              elevation: 2,
+              icon: const Icon(Icons.zoom_out_map, size: 20),
+              label: Text(
+                'Show All (${_places.length})',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                ),
+              ),
             )
           : null,
     );
   }
 }
-
-// Add this import at the top

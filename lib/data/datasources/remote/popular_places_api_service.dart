@@ -31,8 +31,9 @@ class PopularPlacesApiService {
         'latitude': latitude,
         'longitude': longitude,
         'radius': radius,
-        'limit': limit,
-        'category': category,
+        // 'limit': limit,
+        'limit': '',
+        'category': '',
       },
       options: Options(
         headers: {

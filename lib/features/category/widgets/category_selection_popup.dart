@@ -15,8 +15,11 @@ class CategorySelectionPopup extends StatefulWidget {
   _CategorySelectionPopupState createState() => _CategorySelectionPopupState();
 }
 
-class _CategorySelectionPopupState extends State<CategorySelectionPopup> {
+class _CategorySelectionPopupState extends State<CategorySelectionPopup>
+    with TickerProviderStateMixin {
   late ScrollController _scrollController;
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
@@ -24,9 +27,18 @@ class _CategorySelectionPopupState extends State<CategorySelectionPopup> {
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
 
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
+
     // Load initial categories
     Future.microtask(() {
       context.read<CategorySelectionProvider>().loadCategories();
+      _fadeController.forward();
     });
   }
 
@@ -34,6 +46,7 @@ class _CategorySelectionPopupState extends State<CategorySelectionPopup> {
   void dispose() {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
+    _fadeController.dispose();
     super.dispose();
   }
 
@@ -47,386 +60,678 @@ class _CategorySelectionPopupState extends State<CategorySelectionPopup> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      child: Container(
-        height: MediaQuery.of(context).size.height * 0.8,
-        margin: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Colors.yellow, AppColors.primary],
-                ),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          height: MediaQuery.of(context).size.height * 0.85,
+          margin: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 30,
+                offset: const Offset(0, 15),
+                spreadRadius: 0,
               ),
-              child: Column(
-                children: [
-                  const Icon(
-                    Icons.category_outlined,
-                    color: Colors.white,
-                    size: 40,
+              BoxShadow(
+                color: AppColors.primary.withOpacity(0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 5),
+                spreadRadius: 0,
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              // Modern Header with gradient
+              Container(
+                padding: const EdgeInsets.fromLTRB(28, 32, 28, 24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [AppColors.primary, AppColors.secondary],
+                    stops: const [0.0, 1.0],
                   ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Choose Your Favourite Category',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(24),
+                    topRight: Radius.circular(24),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Icon(
+                        Icons.tune_rounded,
+                        color: Colors.white,
+                        size: 32,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'You can choose more than one',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-                ],
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Select Your Interests',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Choose categories that match your preferences',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w400,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            // Selected count indicator
-            Consumer<CategorySelectionProvider>(
-              builder: (context, provider, child) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: provider.selectedCount > 0
-                              ? Colors.green.withOpacity(0.1)
-                              : Colors.grey.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: provider.selectedCount > 0
-                                ? Colors.green
-                                : Colors.grey,
-                          ),
-                        ),
-                        child: Text(
-                          '${provider.selectedCount} Selected',
-                          style: TextStyle(
-                            color: provider.selectedCount > 0
-                                ? Colors.green.shade700
-                                : Colors.grey.shade600,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      const Spacer(),
-                      if (provider.selectedCount > 0)
-                        TextButton(
-                          onPressed: provider.clearSelections,
-                          child: Text(
-                            'Clear All',
-                            style: TextStyle(
-                              color: Colors.red.shade600,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                );
-              },
-            ),
-
-            // Category list
-            Expanded(
-              child: Consumer<CategorySelectionProvider>(
+              // Selection counter with modern design
+              Consumer<CategorySelectionProvider>(
                 builder: (context, provider, child) {
-                  if (provider.isLoading) {
-                    return const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircularProgressIndicator(),
-                          SizedBox(height: 16),
-                          Text('Loading categories...'),
-                        ],
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 28,
+                      vertical: 20,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.grey.shade200,
+                          width: 1,
+                        ),
                       ),
-                    );
-                  }
-
-                  if (provider.error != null) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            size: 48,
-                            color: Colors.red.shade400,
+                    ),
+                    child: Row(
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Error loading categories',
-                            style: TextStyle(
-                              color: Colors.red.shade600,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                          decoration: BoxDecoration(
+                            gradient: provider.selectedCount > 0
+                                ? LinearGradient(
+                                    colors: [
+                                      AppColors.primary.withOpacity(0.1),
+                                      AppColors.secondary.withOpacity(0.1),
+                                    ],
+                                  )
+                                : null,
+                            color: provider.selectedCount == 0
+                                ? Colors.grey.shade100
+                                : null,
+                            borderRadius: BorderRadius.circular(25),
+                            border: Border.all(
+                              color: provider.selectedCount > 0
+                                  ? AppColors.primary.withOpacity(0.3)
+                                  : Colors.grey.shade300,
+                              width: 1.5,
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            provider.error!,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 12,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: provider.loadCategories,
-                            child: const Text('Retry'),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  return ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount:
-                        provider.allCategories.length +
-                        (provider.isLoadingMore ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index >= provider.allCategories.length) {
-                        // Loading more indicator
-                        return const Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Center(child: CircularProgressIndicator()),
-                        );
-                      }
-
-                      final category = provider.allCategories[index];
-                      final isSelected = provider.isCategorySelected(
-                        category.category,
-                      );
-
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () =>
-                                provider.toggleCategory(category.category),
-                            borderRadius: BorderRadius.circular(12),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? Colors.blue.shade50
-                                    : Colors.grey.shade50,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: isSelected
-                                      ? AppColors.secondary
-                                      : Colors.grey.shade200,
-                                  width: isSelected ? 2 : 1,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 200),
+                                child: Icon(
+                                  provider.selectedCount > 0
+                                      ? Icons.check_circle_rounded
+                                      : Icons.radio_button_unchecked_rounded,
+                                  key: ValueKey(provider.selectedCount > 0),
+                                  color: provider.selectedCount > 0
+                                      ? AppColors.primary
+                                      : Colors.grey.shade500,
+                                  size: 18,
                                 ),
                               ),
-                              child: Row(
-                                children: [
-                                  AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    width: 24,
-                                    height: 24,
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? AppColors.primary
-                                          : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(6),
-                                      border: Border.all(
-                                        color: isSelected
-                                            ? AppColors.primary
-                                            : Colors.grey.shade400,
-                                        width: 2,
-                                      ),
-                                    ),
-                                    child: isSelected
-                                        ? const Icon(
-                                            Icons.check,
-                                            color: Colors.white,
-                                            size: 16,
-                                          )
-                                        : null,
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Text(
-                                      category.category,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: isSelected
-                                            ? FontWeight.w600
-                                            : FontWeight.w400,
-                                        color: isSelected
-                                            ? AppColors.primary
-                                            : Colors.grey.shade800,
-                                      ),
-                                    ),
-                                  ),
-                                  Icon(
-                                    _getCategoryIcon(category.category),
-                                    color: isSelected
-                                        ? AppColors.primary
-                                        : Colors.grey.shade500,
-                                    size: 20,
-                                  ),
-                                ],
+                              const SizedBox(width: 8),
+                              Text(
+                                '${provider.selectedCount} Selected',
+                                style: TextStyle(
+                                  color: provider.selectedCount > 0
+                                      ? AppColors.primary
+                                      : Colors.grey.shade600,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Spacer(),
+                        if (provider.selectedCount > 0)
+                          AnimatedScale(
+                            scale: provider.selectedCount > 0 ? 1.0 : 0.0,
+                            duration: const Duration(milliseconds: 200),
+                            child: TextButton.icon(
+                              onPressed: provider.clearSelections,
+                              icon: const Icon(Icons.clear_rounded, size: 16),
+                              label: const Text('Clear All'),
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.red.shade600,
+                                backgroundColor: Colors.red.shade50,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    },
+                      ],
+                    ),
                   );
                 },
               ),
-            ),
 
-            // Footer with action buttons
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade50,
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
-                ),
-              ),
-              child: Consumer<CategorySelectionProvider>(
-                builder: (context, provider, child) {
-                  return Column(
-                    children: [
-                      if (provider.error != null)
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          margin: const EdgeInsets.only(bottom: 16),
+              // Category list with enhanced styling
+              Expanded(
+                child: Consumer<CategorySelectionProvider>(
+                  builder: (context, provider, child) {
+                    if (provider.isLoading) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    AppColors.primary.withOpacity(0.1),
+                                    AppColors.secondary.withOpacity(0.1),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  AppColors.primary,
+                                ),
+                                strokeWidth: 3,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              'Loading categories...',
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    if (provider.error != null) {
+                      return Center(
+                        child: Container(
+                          margin: const EdgeInsets.all(24),
+                          padding: const EdgeInsets.all(32),
                           decoration: BoxDecoration(
                             color: Colors.red.shade50,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.red.shade200),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.red.shade200,
+                              width: 1,
+                            ),
                           ),
-                          child: Row(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
-                                Icons.error_outline,
-                                color: Colors.red.shade600,
-                                size: 16,
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade100,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Icon(
+                                  Icons.error_outline_rounded,
+                                  size: 32,
+                                  color: Colors.red.shade600,
+                                ),
                               ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  provider.error!,
-                                  style: TextStyle(
-                                    color: Colors.red.shade700,
-                                    fontSize: 12,
+                              const SizedBox(height: 20),
+                              Text(
+                                'Oops! Something went wrong',
+                                style: TextStyle(
+                                  color: Colors.red.shade700,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                provider.error!,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.red.shade600,
+                                  fontSize: 14,
+                                  height: 1.4,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              ElevatedButton.icon(
+                                onPressed: provider.loadCategories,
+                                icon: const Icon(Icons.refresh_rounded),
+                                label: const Text('Try Again'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red.shade600,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextButton(
-                              onPressed: provider.isSaving
-                                  ? null
-                                  : () {
-                                      Navigator.of(context).pop();
-                                    },
-                              child: const Text(
-                                'Skip for now',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+                      itemCount:
+                          provider.allCategories.length +
+                          (provider.isLoadingMore ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index >= provider.allCategories.length) {
+                          // Loading more indicator
+                          return Container(
+                            padding: const EdgeInsets.all(20),
+                            alignment: Alignment.center,
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                AppColors.primary,
                               ),
+                              strokeWidth: 2,
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            flex: 2,
-                            child: ElevatedButton(
-                              onPressed:
-                                  provider.isSaving ||
-                                      provider.selectedCount == 0
-                                  ? null
-                                  : _saveCategories,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 2,
+                          );
+                        }
+
+                        final category = provider.allCategories[index];
+                        final isSelected = provider.isCategorySelected(
+                          category.category,
+                        );
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () =>
+                                  provider.toggleCategory(category.category),
+                              borderRadius: BorderRadius.circular(16),
+                              splashColor: AppColors.primary.withOpacity(0.1),
+                              highlightColor: AppColors.primary.withOpacity(
+                                0.05,
                               ),
-                              child: provider.isSaving
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.easeOutCubic,
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  gradient: isSelected
+                                      ? LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            AppColors.primary.withOpacity(0.08),
+                                            AppColors.secondary.withOpacity(
+                                              0.08,
                                             ),
+                                          ],
+                                        )
+                                      : null,
+                                  color: isSelected ? null : Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? AppColors.primary.withOpacity(0.4)
+                                        : Colors.grey.shade200,
+                                    width: isSelected ? 2 : 1,
+                                  ),
+                                  boxShadow: isSelected
+                                      ? [
+                                          BoxShadow(
+                                            color: AppColors.primary
+                                                .withOpacity(0.15),
+                                            blurRadius: 12,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ]
+                                      : [
+                                          BoxShadow(
+                                            color: Colors.grey.withOpacity(
+                                              0.05,
+                                            ),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                ),
+                                child: Row(
+                                  children: [
+                                    // Custom checkbox
+                                    AnimatedContainer(
+                                      duration: const Duration(
+                                        milliseconds: 250,
                                       ),
-                                    )
-                                  : const Text(
-                                      'Save Preferences',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
+                                      width: 28,
+                                      height: 28,
+                                      decoration: BoxDecoration(
+                                        gradient: isSelected
+                                            ? LinearGradient(
+                                                colors: [
+                                                  AppColors.primary,
+                                                  AppColors.secondary,
+                                                ],
+                                              )
+                                            : null,
+                                        color: isSelected
+                                            ? null
+                                            : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: isSelected
+                                              ? Colors.transparent
+                                              : Colors.grey.shade400,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      child: AnimatedScale(
+                                        scale: isSelected ? 1.0 : 0.0,
+                                        duration: const Duration(
+                                          milliseconds: 200,
+                                        ),
+                                        child: const Icon(
+                                          Icons.check_rounded,
+                                          color: Colors.white,
+                                          size: 18,
+                                        ),
                                       ),
                                     ),
+                                    const SizedBox(width: 20),
+                                    // Category icon
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: isSelected
+                                            ? AppColors.primary.withOpacity(
+                                                0.15,
+                                              )
+                                            : Colors.grey.shade100,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Icon(
+                                        _getCategoryIcon(category.category),
+                                        color: isSelected
+                                            ? AppColors.primary
+                                            : Colors.grey.shade600,
+                                        size: 20,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    // Category name
+                                    Expanded(
+                                      child: Text(
+                                        category.category,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: isSelected
+                                              ? FontWeight.w600
+                                              : FontWeight.w500,
+                                          color: isSelected
+                                              ? AppColors.primary
+                                              : Colors.grey.shade800,
+                                          height: 1.3,
+                                        ),
+                                      ),
+                                    ),
+                                    // Selection indicator
+                                    if (isSelected)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              AppColors.primary,
+                                              AppColors.secondary,
+                                            ],
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          'Selected',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
-                        ],
-                      ),
-                    ],
-                  );
-                },
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+
+              // Modern footer with enhanced buttons
+              Container(
+                padding: const EdgeInsets.all(28),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(24),
+                    bottomRight: Radius.circular(24),
+                  ),
+                  border: Border(
+                    top: BorderSide(color: Colors.grey.shade200, width: 1),
+                  ),
+                ),
+                child: Consumer<CategorySelectionProvider>(
+                  builder: (context, provider, child) {
+                    return Column(
+                      children: [
+                        if (provider.error != null)
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            margin: const EdgeInsets.only(bottom: 20),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade50,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.red.shade200,
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.error_outline_rounded,
+                                  color: Colors.red.shade600,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    provider.error!,
+                                    style: TextStyle(
+                                      color: Colors.red.shade700,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        Row(
+                          children: [
+                            // Skip button
+                            Expanded(
+                              child: TextButton(
+                                onPressed: provider.isSaving
+                                    ? null
+                                    : () {
+                                        Navigator.of(context).pop();
+                                      },
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.grey.shade600,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    side: BorderSide(
+                                      color: Colors.grey.shade300,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Skip for now',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            // Save button
+                            Expanded(
+                              flex: 2,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient:
+                                      provider.isSaving ||
+                                          provider.selectedCount == 0
+                                      ? null
+                                      : LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            AppColors.primary,
+                                            AppColors.secondary,
+                                          ],
+                                        ),
+                                  borderRadius: BorderRadius.circular(14),
+                                  boxShadow:
+                                      provider.isSaving ||
+                                          provider.selectedCount == 0
+                                      ? null
+                                      : [
+                                          BoxShadow(
+                                            color: AppColors.primary
+                                                .withOpacity(0.3),
+                                            blurRadius: 12,
+                                            offset: const Offset(0, 6),
+                                          ),
+                                        ],
+                                ),
+                                child: ElevatedButton(
+                                  onPressed:
+                                      provider.isSaving ||
+                                          provider.selectedCount == 0
+                                      ? null
+                                      : _saveCategories,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        provider.isSaving ||
+                                            provider.selectedCount == 0
+                                        ? Colors.grey.shade300
+                                        : Colors.transparent,
+                                    foregroundColor: Colors.white,
+                                    shadowColor: Colors.transparent,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 18,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  child: provider.isSaving
+                                      ? const SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                  Colors.white,
+                                                ),
+                                          ),
+                                        )
+                                      : Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            const Icon(
+                                              Icons.save_rounded,
+                                              size: 18,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            const Text(
+                                              'Save Preferences',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -440,24 +745,59 @@ class _CategorySelectionPopupState extends State<CategorySelectionPopup> {
       Navigator.of(context).pop();
       widget.onCompleted?.call();
 
-      // Show success message
+      // Enhanced success message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.white),
-                const SizedBox(width: 8),
-                Text(
-                  '${provider.selectedCount} categories saved successfully!',
-                ),
-              ],
+            content: Container(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.check_circle_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'Preferences Saved!',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
+                        ),
+                        Text(
+                          '${provider.selectedCount} categories selected',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
             backgroundColor: Colors.green.shade600,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
             ),
+            margin: const EdgeInsets.all(16),
+            duration: const Duration(seconds: 3),
           ),
         );
       }
@@ -467,26 +807,39 @@ class _CategorySelectionPopupState extends State<CategorySelectionPopup> {
   IconData _getCategoryIcon(String categoryName) {
     switch (categoryName.toLowerCase()) {
       case 'lodging':
-        return Icons.hotel;
+        return Icons.hotel_rounded;
       case 'clothing store':
-        return Icons.store;
+        return Icons.store_rounded;
       case 'movie theater':
-        return Icons.movie;
+        return Icons.movie_rounded;
       case 'department store':
-        return Icons.shopping_bag;
+        return Icons.shopping_bag_rounded;
       case 'point of interest':
-        return Icons.place;
+        return Icons.place_rounded;
       case 'hospital':
-        return Icons.local_hospital;
+        return Icons.local_hospital_rounded;
       case 'primary school':
       case 'secondary school':
-        return Icons.school;
+        return Icons.school_rounded;
       case 'place of worship':
-        return Icons.temple_hindu;
+        return Icons.temple_hindu_rounded;
       case 'travel agency':
-        return Icons.flight;
+        return Icons.flight_rounded;
+      case 'restaurant':
+      case 'food':
+        return Icons.restaurant_rounded;
+      case 'shopping':
+        return Icons.shopping_cart_rounded;
+      case 'entertainment':
+        return Icons.theaters_rounded;
+      case 'health':
+        return Icons.health_and_safety_rounded;
+      case 'education':
+        return Icons.menu_book_rounded;
+      case 'transport':
+        return Icons.directions_bus_rounded;
       default:
-        return Icons.category;
+        return Icons.category_rounded;
     }
   }
 }
