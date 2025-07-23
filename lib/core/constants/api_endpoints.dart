@@ -41,6 +41,8 @@ class ApiEndpoints {
   static const String myGroups = "$baseUrl/my-groups";
   static const String latestGroups = "$baseUrl/latest-groups"; // For future use
   static const String joinableGroups = "$baseUrl/joinable-groups";
+  static const String categories = "$baseUrl/categories";
+  // static const String popularPlaces = "$baseUrl/places/popular";
 
   // Like endpoints
   static const String postsLike = '$baseUrl/posts-like';

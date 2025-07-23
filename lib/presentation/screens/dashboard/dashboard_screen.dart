@@ -10,8 +10,12 @@ import 'package:provider/provider.dart';
 
 import '../../../core/constants/category_class.dart';
 import '../../../core/constants/dashboad_play.dart';
+import '../../../core/services/dio_client.dart';
+import '../../../core/services/login_count_service.dart';
+import '../../../data/datasources/remote/category_api_service.dart';
 import '../../../data/providers/category_filter_provider.dart';
-import '../../../data/providers/popular_place_provider.dart';
+import '../../../data/providers/category_selection_provider.dart';
+import '../../../features/category/widgets/category_selection_popup.dart';
 import '../../../routes/app_routes.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -24,25 +28,21 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   dynamic _currentImageIndex = 0;
   late Timer _imageTimer;
+  final LoginCountService _loginCountService = LoginCountService();
 
   @override
   void initState() {
     super.initState();
-
+    _checkAndShowCategoryPopup();
     // Fetch recommended and popular places after widget build
     Future.microtask(() {
       final placeProvider = Provider.of<PlaceProvider>(context, listen: false);
-      final popularPlaceProvider = Provider.of<PopularPlaceProvider>(
-        context,
-        listen: false,
-      );
 
       placeProvider.fetchPlaces();
-      popularPlaceProvider.fetchPopularPlacesNearby();
     });
 
     // Your existing carousel timer
-    _imageTimer = Timer.periodic(Duration(seconds: 4), (timer) {
+    _imageTimer = Timer.periodic(Duration(seconds: 5), (timer) {
       setState(() {
         _currentImageIndex = (_currentImageIndex + 1) % dashboardImages.length;
       });
@@ -55,13 +55,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.dispose();
   }
 
+  void _showCategorySelectionPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dismissing by tapping outside
+      builder: (context) => ChangeNotifierProvider(
+        create: (_) => CategorySelectionProvider(
+          CategoryApiService(
+            DioClient().dio,
+          ), // You'll need to import DioClient
+        ),
+        child: CategorySelectionPopup(
+          onCompleted: () {
+            // Optional: Refresh data after categories are selected
+            _refreshData();
+          },
+        ),
+      ),
+    );
+  }
+
   // Pull-to-refresh method
   Future<void> _refreshData() async {
     final placeProvider = Provider.of<PlaceProvider>(context, listen: false);
-    final popularPlaceProvider = Provider.of<PopularPlaceProvider>(
-      context,
-      listen: false,
-    );
+
     final categoryProvider = Provider.of<CategoryFilterProvider>(
       context,
       listen: false,
@@ -71,10 +88,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
     categoryProvider.clearFilter();
 
     // Fetch fresh data
-    await Future.wait([
-      placeProvider.fetchPlaces(),
-      popularPlaceProvider.fetchPopularPlacesNearby(),
-    ]);
+    await Future.wait([placeProvider.fetchPlaces()]);
+  }
+
+  Future<void> _checkAndShowCategoryPopup() async {
+    // Wait a bit for the widget to fully build
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    final loginCount = await _loginCountService.getLoginCount();
+
+    // Show popup only on first login (when count is 1)
+    if (loginCount == 1 && mounted) {
+      _showCategorySelectionPopup();
+    }
+  }
+
+  void _showCategoryPopupManually() {
+    _showCategorySelectionPopup();
   }
 
   void _onCategoryTapped(String categoryName) {
@@ -91,17 +121,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       listen: false,
     );
     final placeProvider = Provider.of<PlaceProvider>(context, listen: false);
-    final popularPlaceProvider = Provider.of<PopularPlaceProvider>(
-      context,
-      listen: false,
-    );
 
     // Clear category filter
     categoryProvider.clearFilter();
 
     // Refetch default data
     placeProvider.fetchPlaces();
-    popularPlaceProvider.fetchPopularPlacesNearby();
   }
 
   @override
@@ -111,16 +136,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      body: Consumer3<PlaceProvider, PopularPlaceProvider, CategoryFilterProvider>(
-        builder: (context, placeProvider, popularPlaceProvider, categoryProvider, _) {
+      body: Consumer2<PlaceProvider, CategoryFilterProvider>(
+        builder: (context, placeProvider, categoryProvider, _) {
           final places = placeProvider.places;
-          final popularPlaces = popularPlaceProvider.popularPlaces;
+
           final categoryPlaces = categoryProvider.categoryPlaces;
 
           final isLoading =
-              placeProvider.isLoading ||
-              popularPlaceProvider.isLoading ||
-              categoryProvider.isLoading;
+              placeProvider.isLoading || categoryProvider.isLoading;
 
           final isFilterMode = categoryProvider.isFilterMode;
 

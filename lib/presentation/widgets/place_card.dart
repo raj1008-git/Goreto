@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:goreto/features/maps/screens/maps_screen_two.dart';
 
 import '../../core/constants/api_endpoints.dart';
 import '../../data/models/places/place_model.dart';
-import '../../features/maps/screens/maps_screen.dart';
 
 class PlaceCard extends StatefulWidget {
   final PlaceModel place;
@@ -30,7 +30,7 @@ class _PlaceCardState extends State<PlaceCard> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => MapsScreen(place: widget.place)),
+          MaterialPageRoute(builder: (_) => MapsScreenTwo(place: widget.place)),
         );
       },
       child: Container(

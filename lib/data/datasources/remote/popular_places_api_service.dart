@@ -1,29 +1,38 @@
+// lib/data/datasources/remote/popular_places_api_service.dart
+
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:goreto/core/constants/api_endpoints.dart';
 import 'package:goreto/core/services/secure_storage_service.dart';
 
-import '../../models/places/popular_places_model.dart';
+import '../../models/places/place_model.dart';
 
-class PopularPlaceApiService {
+class PopularPlacesApiService {
   final Dio dio;
 
-  PopularPlaceApiService(this.dio);
+  PopularPlacesApiService(this.dio);
 
-  Future<List<PopularPlaceModel>> getPopularPlacesNearby() async {
+  Future<List<PlaceModel>> getPopularPlaces({
+    required double latitude,
+    required double longitude,
+    required String category,
+    int radius = 50000,
+    int limit = 10,
+  }) async {
     final storage = SecureStorageService();
     final token = await storage.read('access_token');
-    print("🔐 Access token read: $token");
-    if (token == null) throw Exception('Access token not found');
+
+    if (token == null) {
+      throw Exception('Access token not found');
+    }
 
     final response = await dio.get(
-      "${ApiEndpoints.baseUrl}/places/popular",
+      '${ApiEndpoints.baseUrl}/places/popular',
       queryParameters: {
-        "latitude": 27.6748,
-        "longitude": 85.4274,
-        "radius": 50000,
-        "limit": 10,
-        "category": "",
+        'latitude': latitude,
+        'longitude': longitude,
+        'radius': radius,
+        'limit': limit,
+        'category': category,
       },
       options: Options(
         headers: {
@@ -33,11 +42,11 @@ class PopularPlaceApiService {
       ),
     );
 
-    debugPrint('Popular Places API response status: ${response.statusCode}');
-    debugPrint('Popular Places API response data: ${response.data}');
-
-    final List<dynamic> data = response.data['data'];
-    debugPrint('Popular Places API extracted data length: ${data.length}');
-    return data.map((e) => PopularPlaceModel.fromJson(e)).toList();
+    if (response.statusCode == 200) {
+      final List<dynamic> data = response.data['data'];
+      return data.map<PlaceModel>((json) => PlaceModel.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to fetch popular places');
+    }
   }
 }

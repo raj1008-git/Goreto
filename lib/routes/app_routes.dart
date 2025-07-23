@@ -41,7 +41,7 @@ class AppRoutes {
       case mainNavigation:
         return _buildPage(const MainNavigationScreen());
       case mapScreen:
-        return _buildPage(const MapsScreen());
+        return _buildPage(const PopularPlacesMapScreen());
       case placeDetail:
         final place = settings.arguments as PlaceModel;
         return _buildPage(PlaceDetailScreen(place: place));
@@ -71,7 +71,7 @@ class AppRoutes {
       case mainNavigation:
         return const MainNavigationScreen();
       case mapScreen:
-        return const MapsScreen();
+        return const PopularPlacesMapScreen();
       case placeDetail:
         return PlaceDetailScreen(place: arguments as PlaceModel);
       case groupScreen:
