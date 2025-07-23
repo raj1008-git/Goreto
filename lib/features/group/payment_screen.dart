@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/constants/appColors.dart';
+import '../../data/providers/payment_provider.dart';
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({Key? key}) : super(key: key);
@@ -11,6 +13,13 @@ class PaymentScreen extends StatefulWidget {
 
 class _PaymentScreenState extends State<PaymentScreen> {
   int _selectedPlan = 1; // Default selection is 1 Month Plan
+
+  // Mapping subscription plans to IDs (adjust according to your backend)
+  final Map<int, int> _planToSubscriptionId = {
+    1: 1, // 1 Month Plan
+    2: 2, // 3 Month Plan
+    3: 3, // 1 Year Plan
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -98,67 +107,91 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
                       const SizedBox(height: 30),
 
-                      // Support Button
-                      Container(
-                        width: double.infinity,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [AppColors.secondary, AppColors.primary],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.secondary.withOpacity(0.3),
-                              blurRadius: 12,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
-                        ),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Selected Plan: $_selectedPlan\nPayment integration coming soon!',
-                                ),
-                                backgroundColor: AppColors.secondary,
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
+                      // Support Button with Stripe Integration
+                      Consumer<PaymentProvider>(
+                        builder: (context, paymentProvider, child) {
+                          return Container(
+                            width: double.infinity,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  AppColors.secondary,
+                                  AppColors.primary,
+                                ],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
                               ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.secondary.withOpacity(0.3),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 6),
+                                ),
+                              ],
                             ),
-                          ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.favorite,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                              SizedBox(width: 12),
-                              Text(
-                                'Support Our Journey',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                            child: ElevatedButton(
+                              onPressed: paymentProvider.isProcessing
+                                  ? null
+                                  : () => _handlePayment(context),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
+                              child: paymentProvider.isProcessing
+                                  ? const Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                  Colors.white,
+                                                ),
+                                          ),
+                                        ),
+                                        SizedBox(width: 12),
+                                        Text(
+                                          'Processing...',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : const Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.favorite,
+                                          color: Colors.white,
+                                          size: 20,
+                                        ),
+                                        SizedBox(width: 12),
+                                        Text(
+                                          'Support Our Journey',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                            ),
+                          );
+                        },
                       ),
 
                       const SizedBox(height: 40),
@@ -229,6 +262,128 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Handle the complete payment process
+  Future<void> _handlePayment(BuildContext context) async {
+    final paymentProvider = Provider.of<PaymentProvider>(
+      context,
+      listen: false,
+    );
+    final subscriptionId = _planToSubscriptionId[_selectedPlan]!;
+
+    try {
+      // Step 1: Initialize payment sheet
+      _showSnackBar('Initializing payment...', AppColors.primary, Icons.info);
+
+      final initSuccess = await paymentProvider.initializePaymentSheet(
+        subscriptionId,
+      );
+
+      if (!initSuccess) {
+        _showSnackBar(
+          paymentProvider.errorMessage ?? 'Failed to initialize payment',
+          Colors.red,
+          Icons.error,
+        );
+        return;
+      }
+
+      // Step 2: Present payment sheet
+      final paymentResult = await paymentProvider.presentPaymentSheet();
+
+      // Step 3: Handle result
+      if (paymentResult.isSuccess) {
+        _showPaymentSuccessDialog(paymentResult.data!);
+      } else if (paymentResult.isCancelled) {
+        _showSnackBar('Payment cancelled', Colors.orange, Icons.cancel);
+      } else {
+        _showSnackBar(
+          paymentResult.errorMessage ?? 'Payment failed',
+          Colors.red,
+          Icons.error,
+        );
+      }
+    } catch (e) {
+      _showSnackBar('Unexpected error: $e', Colors.red, Icons.error);
+    }
+  }
+
+  /// Show payment success dialog
+  void _showPaymentSuccessDialog(Map<String, dynamic> successData) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.green, size: 30),
+              SizedBox(width: 10),
+              Text("Payment Successful!"),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("Thank you for supporting our journey!"),
+              const SizedBox(height: 10),
+              Text("Plan: ${_getPlanName(_selectedPlan)}"),
+              const SizedBox(height: 10),
+              if (successData.containsKey('message'))
+                Text("Message: ${successData['message']}"),
+              if (successData.containsKey('transaction_id'))
+                Text("Transaction ID: ${successData['transaction_id']}"),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Go back to previous screen
+              },
+              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String _getPlanName(int planId) {
+    switch (planId) {
+      case 1:
+        return '1 Month Plan – NPR 875';
+      case 2:
+        return '3 Month Plan – NPR 2400';
+      case 3:
+        return '1 Year Plan – NPR 8400';
+      default:
+        return 'Unknown Plan';
+    }
+  }
+
+  /// Show snackbar with message
+  void _showSnackBar(String message, Color color, IconData icon) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(icon, color: Colors.white),
+            const SizedBox(width: 10),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(seconds: 3),
       ),
     );
   }

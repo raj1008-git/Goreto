@@ -90,7 +90,7 @@ class PostApiService {
         "${ApiEndpoints.baseUrl}/posts/$postId",
         options: Options(headers: {"Accept": "application/json"}),
       );
-
+      print("❤️❤️❤️❤️❤️❤️: ${response.data}❤️❤️❤️❤️❤️❤️");
       if (response.statusCode == 200) {
         return PostDetailModel.fromJson(response.data);
       } else {

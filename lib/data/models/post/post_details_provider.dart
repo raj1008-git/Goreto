@@ -6,6 +6,7 @@ class PostDetailModel {
   final int userId;
   final String createdAt;
   final String updatedAt;
+  final UserInfo userInfo;
   final List<PostCategoryModel> postCategory;
   final List<PostContentModel> postContents;
   final List<PostLocationModel> postLocations;
@@ -18,6 +19,7 @@ class PostDetailModel {
     required this.userId,
     required this.createdAt,
     required this.updatedAt,
+    required this.userInfo,
     required this.postCategory,
     required this.postContents,
     required this.postLocations,
@@ -32,15 +34,36 @@ class PostDetailModel {
       userId: json['user_id'],
       createdAt: json['created_at'],
       updatedAt: json['updated_at'],
-      postCategory: (json['post_category'] as List)
+      userInfo: UserInfo.fromJson(json['user_info']),
+      postCategory: (json['post_category'] as List? ?? [])
           .map((e) => PostCategoryModel.fromJson(e))
           .toList(),
-      postContents: (json['post_contents'] as List)
+      postContents: (json['post_contents'] as List? ?? [])
           .map((e) => PostContentModel.fromJson(e))
           .toList(),
-      postLocations: (json['post_locations'] as List)
+      postLocations: (json['post_locations'] as List? ?? [])
           .map((e) => PostLocationModel.fromJson(e))
           .toList(),
+    );
+  }
+}
+
+class UserInfo {
+  final int id;
+  final String name;
+  final String profilePictureUrl;
+
+  UserInfo({
+    required this.id,
+    required this.name,
+    required this.profilePictureUrl,
+  });
+
+  factory UserInfo.fromJson(Map<String, dynamic> json) {
+    return UserInfo(
+      id: json['id'],
+      name: json['name'],
+      profilePictureUrl: json['profile_picture_url'],
     );
   }
 }
@@ -154,7 +177,7 @@ class PostLocationModel {
 
 class Location {
   final int id;
-  final int? placeId;
+  final dynamic placeId; // Changed to dynamic because sometimes it's string
   final String name;
   final String latitude;
   final String longitude;
@@ -167,7 +190,7 @@ class Location {
 
   Location({
     required this.id,
-    this.placeId,
+    required this.placeId,
     required this.name,
     required this.latitude,
     required this.longitude,

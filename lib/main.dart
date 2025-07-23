@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:goreto/data/datasources/remote/review_api_service.dart';
 import 'package:goreto/data/providers/auth_provider.dart';
 import 'package:goreto/data/providers/place_provider.dart';
@@ -22,6 +22,7 @@ import 'data/providers/group_provider.dart';
 import 'data/providers/like_and_comment_provider.dart';
 import 'data/providers/location_provider.dart';
 import 'data/providers/my_post_provider.dart';
+import 'data/providers/payment_provider.dart';
 import 'data/providers/popular_place_provider.dart';
 import 'data/providers/post_providers.dart';
 import 'data/providers/post_review_provider.dart';
@@ -34,10 +35,14 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+  Stripe.publishableKey =
+      'pk_test_51RidvvFJdJ18eFS1fTgTCklody1FH0GXY5i0n4Ztsfgzc1C7pnFzC8o7FXcfCbc3q05ce4AhJ8HFHcJfwFCMbSyI00TV5ZxqSA';
+  await Stripe.instance.applySettings();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => PaymentProvider()),
         ChangeNotifierProvider(create: (_) => StoryBoardProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => PlaceProvider()),

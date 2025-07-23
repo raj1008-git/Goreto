@@ -44,7 +44,8 @@ class ApiEndpoints {
   static const String categories = "$baseUrl/categories";
   static const String joinedGroups = "$baseUrl/groups/joined";
   // static const String popularPlaces = "$baseUrl/places/popular";
-
+  static const String payments = '$baseUrl/payments';
+  static const String paymentSuccess = '$baseUrl/payment-success';
   // Like endpoints
   static const String postsLike = '$baseUrl/posts-like';
 
