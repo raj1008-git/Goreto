@@ -13,7 +13,13 @@ class GroupProvider with ChangeNotifier {
   List<GroupModel> _myGroups = [];
   List<GroupModel> _latestGroups = [];
   List<GroupModel> _joinableGroups = [];
+  // Add these new properties
+  List<GroupModel> _joinedGroups = [];
+  bool _isLoadingJoinedGroups = false;
 
+  // Add these getters
+  List<GroupModel> get joinedGroups => _joinedGroups;
+  bool get isLoadingJoinedGroups => _isLoadingJoinedGroups;
   bool _isLoadingMyGroups = false;
   bool _isLoadingLatestGroups = false;
   bool _isLoadingJoinableGroups = false;
@@ -53,6 +59,23 @@ class GroupProvider with ChangeNotifier {
     }
   }
 
+  Future<void> fetchJoinedGroups() async {
+    _isLoadingJoinedGroups = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      _joinedGroups = await _apiService.getJoinedGroups();
+      _errorMessage = null;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _joinedGroups = [];
+    } finally {
+      _isLoadingJoinedGroups = false;
+      notifyListeners();
+    }
+  }
+
   // Future<bool> joinGroup(int groupId) async {
   //   try {
   //     final result = await _apiService.joinGroup(groupId);
@@ -71,12 +94,11 @@ class GroupProvider with ChangeNotifier {
       final result = await _apiService.joinGroup(groupId);
 
       if (result['success'] == true) {
-        // Successfully joined - refresh both lists
+        // Successfully joined - refresh all lists including joined groups
         await fetchAllGroups();
         await fetchMyGroups();
+        await fetchJoinedGroups(); // Add this line
       }
-      // Don't clear error message or refresh lists for "already member" case
-      // This prevents the UI from showing empty state
 
       return result;
     } catch (e) {
@@ -156,6 +178,7 @@ class GroupProvider with ChangeNotifier {
       fetchMyGroups(),
       fetchLatestGroups(),
       fetchJoinableGroups(),
+      fetchJoinedGroups(), // Add this line
     ]);
   }
 }

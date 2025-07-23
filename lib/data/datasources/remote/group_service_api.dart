@@ -66,6 +66,38 @@ class GroupApiService {
     }
   }
 
+  // Add this method to your existing GroupApiService class
+
+  Future<List<GroupModel>> getJoinedGroups() async {
+    final storage = SecureStorageService();
+    final token = await storage.read('access_token');
+
+    if (token == null) {
+      throw Exception('Access token not found');
+    }
+
+    final response = await dio.get(
+      ApiEndpoints.joinedGroups,
+      options: Options(
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      ),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> groupsData = response.data['groups'];
+      return groupsData
+          .map<GroupModel>((json) => GroupModel.fromJson(json))
+          .toList();
+    } else {
+      throw Exception(
+        'Failed to fetch joined groups: ${response.statusMessage}',
+      );
+    }
+  }
+
   // Future<Map<String, dynamic>> joinGroup(int groupId) async {
   //   final storage = SecureStorageService();
   //   final token = await storage.read('access_token');
