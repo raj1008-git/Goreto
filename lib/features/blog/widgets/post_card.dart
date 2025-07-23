@@ -1036,184 +1036,194 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
   Widget _buildActionButtons(int likeCount, int commentCount) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      child: Row(
+      child: Column(
         children: [
-          // Modern Like Button
-          GestureDetector(
-            onTap: _handleLike,
-            onLongPress: likeCount > 0 ? _showLikers : null,
-            child: AnimatedBuilder(
-              animation: _likeAnimation,
-              builder: (context, child) {
-                return Transform.scale(
-                  scale: _likeAnimation.value,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: likeCount > 0
-                          ? LinearGradient(
-                              colors: [
-                                const Color(0xFFEF4444),
-                                const Color(0xFFDC2626),
-                              ],
-                            )
-                          : null,
-                      color: likeCount > 0 ? null : const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: likeCount > 0
-                            ? Colors.transparent
-                            : const Color(0xFFE2E8F0),
-                        width: 2,
-                      ),
-                      boxShadow: likeCount > 0
-                          ? [
-                              BoxShadow(
-                                color: const Color(0xFFEF4444).withOpacity(0.3),
-                                blurRadius: 16,
-                                offset: const Offset(0, 4),
-                              ),
-                            ]
-                          : null,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          likeCount > 0
-                              ? Icons.favorite_rounded
-                              : Icons.favorite_border_rounded,
-                          color: likeCount > 0
-                              ? Colors.white
-                              : const Color(0xFF64748B),
-                          size: 22,
+          Divider(),
+          Row(
+            children: [
+              // Modern Like Button
+              GestureDetector(
+                onTap: _handleLike,
+                onLongPress: likeCount > 0 ? _showLikers : null,
+                child: AnimatedBuilder(
+                  animation: _likeAnimation,
+                  builder: (context, child) {
+                    return Transform.scale(
+                      scale: _likeAnimation.value,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '$likeCount',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 16,
+                        decoration: BoxDecoration(
+                          gradient: likeCount > 0
+                              ? LinearGradient(
+                                  colors: [
+                                    const Color(0xFFEF4444),
+                                    const Color(0xFFDC2626),
+                                  ],
+                                )
+                              : null,
+                          color: likeCount > 0 ? null : const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
                             color: likeCount > 0
+                                ? Colors.transparent
+                                : const Color(0xFFE2E8F0),
+                            width: 2,
+                          ),
+                          boxShadow: likeCount > 0
+                              ? [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFFEF4444,
+                                    ).withOpacity(0.3),
+                                    blurRadius: 16,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              likeCount > 0
+                                  ? Icons.favorite_rounded
+                                  : Icons.favorite_border_rounded,
+                              color: likeCount > 0
+                                  ? Colors.white
+                                  : const Color(0xFF64748B),
+                              size: 22,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '$likeCount',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
+                                color: likeCount > 0
+                                    ? Colors.white
+                                    : const Color(0xFF64748B),
+                              ),
+                            ),
+                            if (likeCount > 0) ...[
+                              const SizedBox(width: 6),
+                              Text(
+                                likeCount == 1 ? 'like' : 'likes',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Colors.white.withOpacity(0.9),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              const SizedBox(width: 16),
+
+              // Modern Comment Button
+              Consumer<LikeCommentProvider>(
+                builder: (context, provider, child) {
+                  final isShowingComments = provider.isShowingComments(
+                    widget.post.id,
+                  );
+                  return GestureDetector(
+                    onTap: () =>
+                        provider.toggleCommentsVisibility(widget.post.id),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: isShowingComments
+                            ? LinearGradient(
+                                colors: [
+                                  AppColors.primary,
+                                  AppColors.primary.withOpacity(0.8),
+                                ],
+                              )
+                            : null,
+                        color: isShowingComments
+                            ? null
+                            : const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: isShowingComments
+                              ? Colors.transparent
+                              : const Color(0xFFE2E8F0),
+                          width: 2,
+                        ),
+                        boxShadow: isShowingComments
+                            ? [
+                                BoxShadow(
+                                  color: AppColors.primary.withOpacity(0.3),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            isShowingComments
+                                ? Icons.chat_bubble_rounded
+                                : Icons.chat_bubble_outline_rounded,
+                            color: isShowingComments
                                 ? Colors.white
                                 : const Color(0xFF64748B),
+                            size: 22,
                           ),
-                        ),
-                        if (likeCount > 0) ...[
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 8),
                           Text(
-                            likeCount == 1 ? 'like' : 'likes',
+                            '$commentCount',
                             style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                              color: Colors.white.withOpacity(0.9),
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                              color: isShowingComments
+                                  ? Colors.white
+                                  : const Color(0xFF64748B),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isShowingComments
+                                  ? Colors.white.withOpacity(0.2)
+                                  : AppColors.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              isShowingComments ? '' : '',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isShowingComments
+                                    ? Colors.white
+                                    : AppColors.primary,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
                         ],
-                      ],
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
-          ),
-
-          const SizedBox(width: 16),
-
-          // Modern Comment Button
-          Consumer<LikeCommentProvider>(
-            builder: (context, provider, child) {
-              final isShowingComments = provider.isShowingComments(
-                widget.post.id,
-              );
-              return GestureDetector(
-                onTap: () => provider.toggleCommentsVisibility(widget.post.id),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: isShowingComments
-                        ? LinearGradient(
-                            colors: [
-                              AppColors.primary,
-                              AppColors.primary.withOpacity(0.8),
-                            ],
-                          )
-                        : null,
-                    color: isShowingComments ? null : const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: isShowingComments
-                          ? Colors.transparent
-                          : const Color(0xFFE2E8F0),
-                      width: 2,
-                    ),
-                    boxShadow: isShowingComments
-                        ? [
-                            BoxShadow(
-                              color: AppColors.primary.withOpacity(0.3),
-                              blurRadius: 16,
-                              offset: const Offset(0, 4),
-                            ),
-                          ]
-                        : null,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        isShowingComments
-                            ? Icons.chat_bubble_rounded
-                            : Icons.chat_bubble_outline_rounded,
-                        color: isShowingComments
-                            ? Colors.white
-                            : const Color(0xFF64748B),
-                        size: 22,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '$commentCount',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 16,
-                          color: isShowingComments
-                              ? Colors.white
-                              : const Color(0xFF64748B),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isShowingComments
-                              ? Colors.white.withOpacity(0.2)
-                              : AppColors.primary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          isShowingComments ? '' : '',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: isShowingComments
-                                ? Colors.white
-                                : AppColors.primary,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
+                  );
+                },
+              ),
+            ],
           ),
         ],
       ),
@@ -1231,7 +1241,7 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
             width: 1,
           ),
         ),
-        color: const Color(0xFFFAFBFC),
+        color: Colors.transparent,
       ),
       child: Row(
         children: [
@@ -1315,10 +1325,12 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
   Widget _buildCommentsList(List<CommentModel> comments) {
     if (comments.isEmpty) {
       return Container(
+        color: Colors.red,
         padding: const EdgeInsets.all(40),
         child: Column(
           children: [
             Container(
+              color: Colors.transparent,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 gradient: LinearGradient(

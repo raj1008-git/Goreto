@@ -622,16 +622,17 @@ class _CategorySelectionPopupState extends State<CategorySelectionPopup>
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
                                     side: BorderSide(
-                                      color: Colors.grey.shade300,
-                                      width: 1.5,
+                                      color: Colors.transparent,
+                                      width: 2,
                                     ),
                                   ),
                                 ),
                                 child: const Text(
-                                  'Skip for now',
+                                  'Skip',
                                   style: TextStyle(
-                                    fontSize: 15,
+                                    fontSize: 18,
                                     fontWeight: FontWeight.w600,
+                                    color: Colors.red,
                                   ),
                                 ),
                               ),
@@ -678,7 +679,7 @@ class _CategorySelectionPopupState extends State<CategorySelectionPopup>
                                     backgroundColor:
                                         provider.isSaving ||
                                             provider.selectedCount == 0
-                                        ? Colors.grey.shade300
+                                        ? Colors.transparent
                                         : Colors.transparent,
                                     foregroundColor: Colors.white,
                                     shadowColor: Colors.transparent,
@@ -693,7 +694,7 @@ class _CategorySelectionPopupState extends State<CategorySelectionPopup>
                                   child: provider.isSaving
                                       ? const SizedBox(
                                           height: 20,
-                                          width: 20,
+                                          width: 25,
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
                                             valueColor:

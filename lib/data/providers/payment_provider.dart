@@ -92,14 +92,6 @@ class PaymentProvider extends ChangeNotifier {
       // Present the payment sheet
       await Stripe.instance.presentPaymentSheet();
 
-      // If we reach here, payment was successful
-      // final success = await _handlePaymentSuccess();
-      //
-      // if (success) {
-      //   return PaymentResult.success(_currentPaymentData!);
-      // } else {
-      //   return PaymentResult.error("Payment confirmation failed");
-      // }
       final paymentResult = await _handlePaymentSuccess();
       return paymentResult;
     } on StripeException catch (e) {
@@ -116,8 +108,7 @@ class PaymentProvider extends ChangeNotifier {
     }
   }
 
-  /// Handle successful payment
-  // Future<bool> _handlePaymentSuccess() async {
+  // Future<PaymentResult> _handlePaymentSuccess() async {
   //   try {
   //     if (_currentPaymentData == null) {
   //       throw Exception("No payment data available");
@@ -126,21 +117,27 @@ class PaymentProvider extends ChangeNotifier {
   //     final userId = _currentPaymentData!['user_id'] as int;
   //     final paymentId = _currentPaymentData!['payment_id'] as int;
   //
-  //     // Call your backend's payment success API
+  //     // Call backend to confirm success
   //     final successResponse = await _paymentService.confirmPaymentSuccess(
   //       userId: userId,
   //       paymentId: paymentId,
   //     );
   //
+  //     // Save the data before nullifying it
+  //     final data = _currentPaymentData;
+  //
   //     _setProcessing(false);
   //     _setPaymentReady(false);
   //     _currentPaymentData = null;
   //
-  //     return true;
+  //     // Return a full success result
+  //     return PaymentResult.success(data!);
   //   } catch (e) {
   //     _setProcessing(false);
   //     _setError("Payment completed but confirmation failed: $e");
-  //     return false;
+  //     return PaymentResult.error(
+  //       "Payment confirmed but app failed to handle it: $e",
+  //     );
   //   }
   // }
   Future<PaymentResult> _handlePaymentSuccess() async {
@@ -158,15 +155,18 @@ class PaymentProvider extends ChangeNotifier {
         paymentId: paymentId,
       );
 
-      // Save the data before nullifying it
-      final data = _currentPaymentData;
+      // Merge the API response with current payment data
+      final completePaymentData = {
+        ..._currentPaymentData!,
+        ...successResponse, // This should include invoice_url from your API
+      };
 
       _setProcessing(false);
       _setPaymentReady(false);
       _currentPaymentData = null;
 
-      // Return a full success result
-      return PaymentResult.success(data!);
+      // Return success with complete data including invoice_url
+      return PaymentResult.success(completePaymentData);
     } catch (e) {
       _setProcessing(false);
       _setError("Payment completed but confirmation failed: $e");
