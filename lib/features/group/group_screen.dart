@@ -1,11 +1,14 @@
-// lib/screens/group_screen.dart
+// Updated GroupScreen with the Create Group FAB
+// lib/features/group/screens/group_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:goreto/features/group/widgets/create_group_FAB.dart';
+import 'package:goreto/features/group/widgets/group_tab_view.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/appColors.dart';
-import '../../data/models/Group/group_model.dart';
 import '../../data/providers/group_provider.dart';
+// Import the new FAB
 
 class GroupScreen extends StatefulWidget {
   const GroupScreen({super.key});
@@ -19,12 +22,11 @@ class _GroupScreenState extends State<GroupScreen>
   late TabController _tabController;
 
   @override
-  @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this, initialIndex: 2);
 
-    // Add this listener for tab changes
+    // Add listener for tab changes
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         switch (_tabController.index) {
@@ -44,7 +46,7 @@ class _GroupScreenState extends State<GroupScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<GroupProvider>().fetchMyGroups();
       context.read<GroupProvider>().fetchAllGroups();
-      context.read<GroupProvider>().fetchJoinedGroups(); // Add this line
+      context.read<GroupProvider>().fetchJoinedGroups();
     });
   }
 
@@ -54,54 +56,10 @@ class _GroupScreenState extends State<GroupScreen>
     super.dispose();
   }
 
-  // Generate colors for group avatars
-  List<Color> _avatarColors = [
-    Colors.blue,
-    Colors.green,
-    Colors.orange,
-    Colors.purple,
-    Colors.red,
-    Colors.teal,
-    Colors.indigo,
-    Colors.pink,
-    Colors.cyan,
-    Colors.amber,
-  ];
-
-  Color _getAvatarColor(int groupId) {
-    return _avatarColors[groupId % _avatarColors.length];
-  }
-
-  String _getInitials(String name) {
-    if (name.isEmpty) return '?';
-    List<String> words = name.trim().split(' ');
-    if (words.length == 1) {
-      return words[0].substring(0, 1).toUpperCase();
-    } else {
-      return (words[0].substring(0, 1) + words[1].substring(0, 1))
-          .toUpperCase();
-    }
-  }
-
-  String _formatMemberCount(List<UserGroupModel> userGroups) {
-    int count = userGroups.length;
-    return count == 1 ? '1 member' : '$count members';
-  }
-
-  String _getUserRole(List<UserGroupModel> userGroups) {
-    // This would need the current user ID to determine role
-    // For now, we'll show the first user's role
-    if (userGroups.isNotEmpty) {
-      return userGroups.first.memberRole.toUpperCase();
-    }
-    return 'MEMBER';
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -113,18 +71,14 @@ class _GroupScreenState extends State<GroupScreen>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Image.asset(
-                'assets/logos/goreto.png',
-                width: 32, // Adjust width to make it slightly bigger
-                height: 32,
-              ),
-              const SizedBox(width: 12), // Add spacing between logo and text
+              Image.asset('assets/logos/goreto.png', width: 32, height: 32),
+              const SizedBox(width: 12),
               const Text(
                 'Groups',
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 20, // Increased font size
-                  fontWeight: FontWeight.w700, // Slightly bolder
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
@@ -147,660 +101,23 @@ class _GroupScreenState extends State<GroupScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          _buildLatestGroupsTab(),
-          _buildJoinedGroupsTab(),
-          _buildMyGroupsTab(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMyGroupsTab() {
-    return Consumer<GroupProvider>(
-      builder: (context, groupProvider, child) {
-        if (groupProvider.isLoadingMyGroups) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (groupProvider.errorMessage != null) {
-          return RefreshIndicator(
-            onRefresh: () => groupProvider.fetchMyGroups(),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Failed to load groups',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Pull to refresh',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
-        if (groupProvider.myGroups.isEmpty) {
-          return RefreshIndicator(
-            onRefresh: () => groupProvider.fetchMyGroups(),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.groups_outlined,
-                    size: 64,
-                    color: Colors.grey[400],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No groups found',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Pull to refresh',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
-        return RefreshIndicator(
-          onRefresh: () => groupProvider.fetchMyGroups(),
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: groupProvider.myGroups.length,
-            itemBuilder: (context, index) {
-              final group = groupProvider.myGroups[index];
-              return _buildGroupTile(group);
-            },
+          GroupTabView(
+            tabType: GroupTabType.latest,
+            onRefresh: () => context.read<GroupProvider>().fetchAllGroups(),
           ),
-        );
-      },
-    );
-  }
-
-  Widget _buildGroupTile(GroupModel group) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+          GroupTabView(
+            tabType: GroupTabType.joined,
+            onRefresh: () => context.read<GroupProvider>().fetchJoinedGroups(),
+          ),
+          GroupTabView(
+            tabType: GroupTabType.myGroups,
+            onRefresh: () => context.read<GroupProvider>().fetchMyGroups(),
           ),
         ],
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        leading: CircleAvatar(
-          radius: 25,
-          backgroundColor: _getAvatarColor(group.id),
-          backgroundImage: group.profilePictureUrl != null
-              ? NetworkImage(group.profilePictureUrl!)
-              : null,
-          child: group.profilePictureUrl == null
-              ? Text(
-                  _getInitials(group.name),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                )
-              : null,
-        ),
-        title: Text(
-          group.name,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 4),
-            Text(
-              _formatMemberCount(group.userGroups),
-              style: TextStyle(color: Colors.grey[600], fontSize: 13),
-            ),
-            const SizedBox(height: 2),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _getUserRole(group.userGroups),
-                style: const TextStyle(
-                  color: AppColors.secondary,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-        onTap: () {
-          // TODO: Navigate to group details
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Opening ${group.name}')));
-        },
-      ),
-    );
-  }
-
-  Widget _buildJoinableGroupTile(GroupModel group) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        leading: CircleAvatar(
-          radius: 25,
-          backgroundColor: _getAvatarColor(group.id),
-          backgroundImage: group.profilePictureUrl != null
-              ? NetworkImage(group.profilePictureUrl!)
-              : null,
-          child: group.profilePictureUrl == null
-              ? Text(
-                  _getInitials(group.name),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                )
-              : null,
-        ),
-        title: Text(
-          group.name,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 4),
-            Text(
-              _formatMemberCount(group.userGroups),
-              style: TextStyle(color: Colors.grey[600], fontSize: 13),
-            ),
-          ],
-        ),
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: const Text(
-            'Join',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        onTap: () => _showJoinDialog(group),
-      ),
-    );
-  }
-
-  void _showJoinDialog(GroupModel group) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  Icons.group_add,
-                  color: AppColors.primary,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'Join Group',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
-              ),
-            ],
-          ),
-          content: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Text(
-              'Are you sure you want to join "${group.name}"?',
-              style: const TextStyle(fontSize: 16, height: 1.4),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                'Cancel',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.of(context).pop();
-
-                // Show loading indicator
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Row(
-                      children: [
-                        SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Text('Joining ${group.name}...'),
-                      ],
-                    ),
-                    duration: Duration(seconds: 2),
-                    backgroundColor: Colors.blue[600],
-                  ),
-                );
-
-                final result = await context.read<GroupProvider>().joinGroup(
-                  group.id,
-                );
-
-                // Clear the loading snackbar
-                ScaffoldMessenger.of(context).clearSnackBars();
-
-                if (result['success'] == true) {
-                  // Success case
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Row(
-                        children: [
-                          Icon(
-                            Icons.check_circle,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'Welcome to ${group.name}! 🎉',
-                              style: TextStyle(fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                        ],
-                      ),
-                      backgroundColor: Colors.green[600],
-                      duration: Duration(seconds: 3),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  );
-                } else if (result['alreadyMember'] == true) {
-                  // Already member case
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Row(
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              result['message'] ??
-                                  'You are already a member of this group.',
-                              style: TextStyle(fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                        ],
-                      ),
-                      backgroundColor: Colors.orange[600],
-                      duration: Duration(seconds: 3),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  );
-                } else {
-                  // Error case
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Row(
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              result['message'] ??
-                                  'Failed to join group. Please try again.',
-                              style: TextStyle(fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                        ],
-                      ),
-                      backgroundColor: Colors.red[600],
-                      duration: Duration(seconds: 3),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      action: SnackBarAction(
-                        label: 'Retry',
-                        textColor: Colors.white,
-                        onPressed: () => _showJoinDialog(group),
-                      ),
-                    ),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              ),
-              child: const Text(
-                'Join',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildLatestGroupsTab() {
-    return Consumer<GroupProvider>(
-      builder: (context, groupProvider, child) {
-        if (groupProvider.isLoadingAllGroups) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (groupProvider.errorMessage != null) {
-          return RefreshIndicator(
-            onRefresh: () => groupProvider.fetchAllGroups(),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Failed to load groups',
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Pull to refresh',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
-        if (groupProvider.allGroups.isEmpty) {
-          return RefreshIndicator(
-            onRefresh: () => groupProvider.fetchAllGroups(),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.groups_outlined,
-                    size: 64,
-                    color: Colors.grey[400],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No groups available',
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Pull to refresh',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
-        return RefreshIndicator(
-          onRefresh: () => groupProvider.fetchAllGroups(),
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: groupProvider.allGroups.length,
-            itemBuilder: (context, index) {
-              final group = groupProvider.allGroups[index];
-              return _buildJoinableGroupTile(group);
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildJoinedGroupsTab() {
-    return Consumer<GroupProvider>(
-      builder: (context, groupProvider, child) {
-        if (groupProvider.isLoadingJoinedGroups) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (groupProvider.errorMessage != null) {
-          return RefreshIndicator(
-            onRefresh: () => groupProvider.fetchJoinedGroups(),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Failed to load joined groups',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Pull to refresh',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
-        if (groupProvider.joinedGroups.isEmpty) {
-          return RefreshIndicator(
-            onRefresh: () => groupProvider.fetchJoinedGroups(),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.group_outlined, size: 64, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No joined groups',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Join some groups to see them here',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Pull to refresh',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[400]),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
-        return RefreshIndicator(
-          onRefresh: () => groupProvider.fetchJoinedGroups(),
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: groupProvider.joinedGroups.length,
-            itemBuilder: (context, index) {
-              final group = groupProvider.joinedGroups[index];
-              return _buildJoinedGroupTile(group);
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildJoinedGroupTile(GroupModel group) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        leading: CircleAvatar(
-          radius: 25,
-          backgroundColor: _getAvatarColor(group.id),
-          backgroundImage: group.profilePictureUrl != null
-              ? NetworkImage(group.profilePictureUrl!)
-              : null,
-          child: group.profilePictureUrl == null
-              ? Text(
-                  _getInitials(group.name),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                )
-              : null,
-        ),
-        title: Text(
-          group.name,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 4),
-            Text(
-              _formatMemberCount(group.userGroups),
-              style: TextStyle(color: Colors.grey[600], fontSize: 13),
-            ),
-            const SizedBox(height: 2),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                'JOINED',
-                style: TextStyle(
-                  color: Colors.green[700],
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-        onTap: () {
-          // TODO: Navigate to group details
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Opening ${group.name}')));
-        },
-      ),
+      floatingActionButton:
+          const CreateGroupFAB(), // Add the beautiful FAB here
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

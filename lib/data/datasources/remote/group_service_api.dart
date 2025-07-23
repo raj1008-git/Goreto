@@ -39,6 +39,58 @@ class GroupApiService {
     }
   }
 
+  Future<Map<String, dynamic>> createGroup(String groupName) async {
+    final storage = SecureStorageService();
+    final token = await storage.read('access_token');
+
+    if (token == null) {
+      throw Exception('Access token not found');
+    }
+
+    try {
+      final response = await dio.post(
+        ApiEndpoints.createGroup,
+        data: {'name': groupName},
+        options: Options(
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      return {
+        'success': true,
+        'message': response.data['message'],
+        'group': response.data['group'],
+        'group_chat': response.data['group_chat'],
+      };
+    } catch (e) {
+      if (e is DioException) {
+        if (e.response?.statusCode == 403) {
+          return {
+            'success': false,
+            'limitReached': true,
+            'message':
+                e.response?.data['message'] ??
+                'Group creation limit reached. Please subscribe to create more groups.',
+          };
+        }
+        return {
+          'success': false,
+          'limitReached': false,
+          'message': e.response?.data['message'] ?? 'Failed to create group',
+        };
+      }
+      return {
+        'success': false,
+        'limitReached': false,
+        'message': 'An unexpected error occurred',
+      };
+    }
+  }
+
   Future<List<GroupModel>> getAllGroups() async {
     final storage = SecureStorageService();
     final token = await storage.read('access_token');

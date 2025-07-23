@@ -172,6 +172,27 @@ class GroupProvider with ChangeNotifier {
     }
   }
 
+  Future<Map<String, dynamic>> createGroup(String groupName) async {
+    try {
+      final result = await _apiService.createGroup(groupName);
+
+      if (result['success'] == true) {
+        // Refresh all group lists after successful creation
+        await fetchMyGroups();
+        await fetchAllGroups();
+        await fetchJoinedGroups();
+      }
+
+      return result;
+    } catch (e) {
+      return {
+        'success': false,
+        'limitReached': false,
+        'message': 'An unexpected error occurred',
+      };
+    }
+  }
+
   // Refresh all data
   Future<void> refreshAllData() async {
     await Future.wait([
