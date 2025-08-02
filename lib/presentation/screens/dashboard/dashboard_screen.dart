@@ -141,7 +141,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                             const SizedBox(height: 8),
                             const Text(
-                              "Goreto - Take your travel experience to next level",
+                              "Goreto - these are the Take your travel experience to next level",
                               style: TextStyle(
                                 color: Colors.white70,
                                 fontSize: 16,
@@ -161,7 +161,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   Expanded(
                                     child: TextField(
                                       decoration: InputDecoration(
-                                        hintText: 'Search destination',
+                                        hintText:
+                                            ' these are Search destination',
                                         border: InputBorder.none,
                                       ),
                                     ),
@@ -237,7 +238,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       children: [
                         // Recommended Places Section
                         const Text(
-                          "Recommended for You",
+                          " these are the Recommended for You",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
