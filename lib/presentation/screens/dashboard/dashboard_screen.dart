@@ -139,19 +139,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 7),
                             const Text(
-                              "Goreto - these are the Take your travel experience to next level",
+                              "Goreto - Take your travel experience to next level",
                               style: TextStyle(
                                 color: Colors.white70,
                                 fontSize: 16,
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 15),
                             Container(
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(30),
+                                borderRadius: BorderRadius.circular(31),
                               ),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
@@ -161,8 +161,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   Expanded(
                                     child: TextField(
                                       decoration: InputDecoration(
-                                        hintText:
-                                            ' these are Search destination',
+                                        hintText: ' Search destination',
                                         border: InputBorder.none,
                                       ),
                                     ),
@@ -238,15 +237,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       children: [
                         // Recommended Places Section
                         const Text(
-                          " these are the Recommended for You",
+                          "Recommended for You",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 11),
                         SizedBox(
-                          height: 230,
+                          height: 231,
                           child: ListView.separated(
                             scrollDirection: Axis.horizontal,
                             itemCount: places.length,
@@ -268,9 +267,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 11),
                         SizedBox(
-                          height: 230,
+                          height: 231,
                           child: ListView.separated(
                             scrollDirection: Axis.horizontal,
                             itemCount: popularPlaces.length,
