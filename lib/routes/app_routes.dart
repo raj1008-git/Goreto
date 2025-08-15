@@ -10,6 +10,7 @@ import 'package:goreto/presentation/screens/dashboard/dashboard_screen.dart';
 import 'package:goreto/presentation/screens/main_navigation_screen_controller.dart';
 import 'package:page_transition/page_transition.dart';
 
+import '../features/favourites/favourites_screen.dart';
 import '../features/group/group_screen.dart';
 import '../features/search/widgets/search_screen.dart';
 
@@ -24,6 +25,7 @@ class AppRoutes {
   static const String placeDetail = '/placeDetail';
   static const String search = '/search';
   static const String groupScreen = '/groupCreate';
+  static const String favorites = '/favorites';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -49,6 +51,8 @@ class AppRoutes {
         return _buildPage(const SearchScreen());
       case groupScreen:
         return _buildPage(GroupScreen());
+      case favorites:
+        return _buildPageWithSlideTransition(const FavoritesScreen());
 
       default:
         return _errorRoute();
@@ -87,6 +91,25 @@ class AppRoutes {
       child: child,
       type: PageTransitionType.fade,
       duration: const Duration(milliseconds: 500),
+    );
+  }
+
+  static PageRouteBuilder _buildPageWithSlideTransition(Widget child) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => child,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset.zero;
+        const curve = Curves.easeInOutCubic;
+
+        var tween = Tween(
+          begin: begin,
+          end: end,
+        ).chain(CurveTween(curve: curve));
+
+        return SlideTransition(position: animation.drive(tween), child: child);
+      },
+      transitionDuration: const Duration(milliseconds: 400),
     );
   }
 

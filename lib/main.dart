@@ -18,6 +18,7 @@ import 'data/providers/activity_provider.dart';
 import 'data/providers/category_filter_provider.dart';
 import 'data/providers/category_selection_provider.dart';
 import 'data/providers/chat_provider.dart';
+import 'data/providers/favourites_provider.dart';
 import 'data/providers/group_provider.dart';
 import 'data/providers/like_and_comment_provider.dart';
 import 'data/providers/location_provider.dart';
@@ -77,6 +78,7 @@ void main() async {
           create: (_) =>
               PopularPlacesProvider(PopularPlacesApiService(DioClient().dio)),
         ),
+        ChangeNotifierProvider(create: (_) => FavoritesProvider()),
       ],
       child: const MyApp(), // Your main app widget
     ),

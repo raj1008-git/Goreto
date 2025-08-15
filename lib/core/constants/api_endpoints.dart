@@ -44,4 +44,7 @@ class ApiEndpoints {
   // Helper method for group profile picture URL
   static String groupProfilePictureUrl(int groupId) =>
       "$groupProfilePicture/$groupId";
+
+  static const String favourites = '$baseUrl/favourites';
+  static String favoriteUrl(int locationId) => "$favourites/$locationId";
 }
