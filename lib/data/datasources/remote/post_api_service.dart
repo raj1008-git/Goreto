@@ -84,21 +84,69 @@ class PostApiService {
     }
   }
 
+  // Future<PostDetailModel?> fetchPostDetail(int postId) async {
+  //   try {
+  //     final response = await _dio.get(
+  //       "${ApiEndpoints.baseUrl}/posts/$postId",
+  //       options: Options(headers: {"Accept": "application/json"}),
+  //     );
+  //     print("❤️❤️❤️❤️❤️❤️: ${response.data}❤️❤️❤️❤️❤️❤️");
+  //     if (response.statusCode == 200) {
+  //       return PostDetailModel.fromJson(response.data);
+  //     } else {
+  //       print("Failed to load post detail. Status: ${response.statusCode}");
+  //       return null;
+  //     }
+  //   } catch (e) {
+  //     print("Error fetching post detail: $e");
+  //     return null;
+  //   }
+  // }
   Future<PostDetailModel?> fetchPostDetail(int postId) async {
     try {
+      print("🌐 Making API call to: ${ApiEndpoints.baseUrl}/posts/$postId");
+
       final response = await _dio.get(
         "${ApiEndpoints.baseUrl}/posts/$postId",
-        options: Options(headers: {"Accept": "application/json"}),
+        options: Options(
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+          },
+        ),
       );
-      print("❤️❤️❤️❤️❤️❤️: ${response.data}❤️❤️❤️❤️❤️❤️");
+
+      print("📡 Response Status: ${response.statusCode}");
+      print("📦 Response Data: ${response.data}");
+
       if (response.statusCode == 200) {
-        return PostDetailModel.fromJson(response.data);
+        if (response.data != null) {
+          try {
+            final postDetail = PostDetailModel.fromJson(response.data);
+            print("✅ Successfully parsed PostDetailModel");
+            return postDetail;
+          } catch (parseError) {
+            print("❌ Error parsing response data: $parseError");
+            print("📄 Raw response data: ${response.data}");
+            return null;
+          }
+        } else {
+          print("❌ Response data is null");
+          return null;
+        }
       } else {
-        print("Failed to load post detail. Status: ${response.statusCode}");
+        print("❌ Failed to load post detail. Status: ${response.statusCode}");
+        print("📄 Response body: ${response.data}");
         return null;
       }
-    } catch (e) {
-      print("Error fetching post detail: $e");
+    } on DioException catch (dioError) {
+      print("❌ Dio Error: ${dioError.type}");
+      print("📄 Error message: ${dioError.message}");
+      print("📄 Error response: ${dioError.response?.data}");
+      return null;
+    } catch (e, stackTrace) {
+      print("❌ Unexpected error fetching post detail: $e");
+      print("📚 Stack trace: $stackTrace");
       return null;
     }
   }
