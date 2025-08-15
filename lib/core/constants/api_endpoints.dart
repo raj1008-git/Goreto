@@ -1,27 +1,3 @@
-// class ApiEndpoints {
-//   static const String baseUrl = "http://192.168.254.10:8000/api";
-//   static const String storageBaseUrl = "http://192.168.254.10:8000/storage";
-//
-//   static const String login = "$baseUrl/login";
-//   static const String placesByCategory = "$baseUrl/places-by-category";
-//   static const String userLocation = "$baseUrl/user-location";
-//   static const String nearbyUsers = "$baseUrl/nearby-users";
-//   static const String createPost = "$baseUrl/posts";
-//   static const String myPosts = "$baseUrl/posts/mine";
-//   static const String posts = '$baseUrl/posts';
-//   static const String tapbookmarks = '$baseUrl/post-bookmarks';
-//   static const String postBookmarks = '$baseUrl/post-bookmarks';
-//   static const String createGroup = "$baseUrl/groups";
-//
-//   // Profile endpoints
-//   static const String profilePicture = "$baseUrl/profile-picture";
-//   static const String updateProfilePicture = "$baseUrl/profile-picture/update";
-//   static const String changePassword = "$baseUrl/change-password";
-//
-//   static String imageUrl(String imagePath) => "$imagePath";
-// }
-// api_endpoints.dart
-// http://110.34.1.123:8080
 class ApiEndpoints {
   static const String ip = "110.34.1.123";
   static const String baseUrl = "http://110.34.1.123:8080/api";
@@ -62,4 +38,10 @@ class ApiEndpoints {
   // Helper methods
   static String postLikeUrl(int postId) => "$postsLike/$postId";
   static String postCommentsUrl(int postId) => "$postReviews/$postId";
+
+  // Add group profile picture endpoint
+  static const String groupProfilePicture = "$baseUrl/groups-picture";
+  // Helper method for group profile picture URL
+  static String groupProfilePictureUrl(int groupId) =>
+      "$groupProfilePicture/$groupId";
 }

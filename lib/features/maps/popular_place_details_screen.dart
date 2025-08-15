@@ -201,8 +201,12 @@ class PopularPlaceDetailScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.grey.shade200),
           ),
+          // child: Text(
+          //   place.description,
+          //   style: const TextStyle(fontSize: 16, height: 1.5),
+          // ),
           child: Text(
-            place.description,
+            place.description ?? 'No description available',
             style: const TextStyle(fontSize: 16, height: 1.5),
           ),
         ),
