@@ -532,7 +532,9 @@ import '../../../core/services/login_count_service.dart';
 import '../../../data/datasources/remote/category_api_service.dart';
 import '../../../data/providers/category_filter_provider.dart';
 import '../../../data/providers/category_selection_provider.dart';
+import '../../../data/providers/notification_provider.dart';
 import '../../../features/category/widgets/category_selection_popup.dart';
+import '../../../features/notification/widgets/notification_dropdown_widget.dart';
 import '../../../routes/app_routes.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -546,11 +548,51 @@ class _DashboardScreenState extends State<DashboardScreen> {
   dynamic _currentImageIndex = 0;
   late Timer _imageTimer;
   final LoginCountService _loginCountService = LoginCountService();
+  void _showNotificationDropdown(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Stack(
+          children: [
+            // Transparent barrier that closes dropdown when tapped
+            GestureDetector(
+              onTap: () => Navigator.of(context).pop(),
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                color: Colors.transparent,
+              ),
+            ),
+            // Dropdown positioned near notification icon
+            Positioned(
+              top: 90, // Adjust based on your app bar height
+              right: 20,
+              child: Material(
+                color: Colors.transparent,
+                child: const NotificationDropdown(),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
     super.initState();
     _checkAndShowCategoryPopup();
+    Future.microtask(() {
+      final notificationProvider = Provider.of<NotificationProvider>(
+        context,
+        listen: false,
+      );
+      notificationProvider.fetchNotifications();
+
+      final placeProvider = Provider.of<PlaceProvider>(context, listen: false);
+      placeProvider.fetchPlaces();
+    });
     // Fetch recommended and popular places after widget build
     Future.microtask(() {
       final placeProvider = Provider.of<PlaceProvider>(context, listen: false);
@@ -593,19 +635,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   // Pull-to-refresh method
+  // Future<void> _refreshData() async {
+  //   final placeProvider = Provider.of<PlaceProvider>(context, listen: false);
+  //
+  //   final categoryProvider = Provider.of<CategoryFilterProvider>(
+  //     context,
+  //     listen: false,
+  //   );
+  //
+  //   // Clear any existing filters
+  //   categoryProvider.clearFilter();
+  //
+  //   // Fetch fresh data
+  //   await Future.wait([placeProvider.fetchPlaces()]);
+  // }
   Future<void> _refreshData() async {
     final placeProvider = Provider.of<PlaceProvider>(context, listen: false);
-
     final categoryProvider = Provider.of<CategoryFilterProvider>(
       context,
       listen: false,
     );
+    final notificationProvider = Provider.of<NotificationProvider>(
+      context,
+      listen: false,
+    ); // Add this
 
-    // Clear any existing filters
     categoryProvider.clearFilter();
 
-    // Fetch fresh data
-    await Future.wait([placeProvider.fetchPlaces()]);
+    await Future.wait([
+      placeProvider.fetchPlaces(),
+      notificationProvider.fetchNotifications(), // Add this
+    ]);
   }
 
   Future<void> _checkAndShowCategoryPopup() async {
@@ -746,11 +806,52 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                               ),
                               const SizedBox(width: 18),
-                              const Icon(
-                                Icons.notifications_none,
-                                color: Colors.white,
-                                size: 28,
+
+                              // NEW: Notification icon with badge and dropdown
+                              Consumer<NotificationProvider>(
+                                builder: (context, notificationProvider, _) {
+                                  return GestureDetector(
+                                    onTap: () =>
+                                        _showNotificationDropdown(context),
+                                    child: Stack(
+                                      children: [
+                                        const Icon(
+                                          Icons.notifications_none,
+                                          color: Colors.white,
+                                          size: 28,
+                                        ),
+                                        if (notificationProvider.unreadCount >
+                                            0)
+                                          Positioned(
+                                            right: 0,
+                                            top: 0,
+                                            child: Container(
+                                              padding: const EdgeInsets.all(4),
+                                              decoration: const BoxDecoration(
+                                                color: Colors.red,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              constraints: const BoxConstraints(
+                                                minWidth: 20,
+                                                minHeight: 20,
+                                              ),
+                                              child: Text(
+                                                '${notificationProvider.unreadCount > 99 ? '99+' : notificationProvider.unreadCount}',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  );
+                                },
                               ),
+
                               const SizedBox(width: 18),
                               GestureDetector(
                                 onTap: () {
@@ -767,6 +868,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                             ],
                           ),
+                          // child: Row(
+                          //   children: [
+                          //     GestureDetector(
+                          //       onTap: () {
+                          //         Navigator.pushNamed(
+                          //           context,
+                          //           AppRoutes.favorites,
+                          //         );
+                          //       },
+                          //       child: const Icon(
+                          //         Icons.favorite_border,
+                          //         color: Colors.white,
+                          //         size: 28,
+                          //       ),
+                          //     ),
+                          //     const SizedBox(width: 18),
+                          //     const Icon(
+                          //       Icons.notifications_none,
+                          //       color: Colors.white,
+                          //       size: 28,
+                          //     ),
+                          //     const SizedBox(width: 18),
+                          //     GestureDetector(
+                          //       onTap: () {
+                          //         Navigator.pushNamed(
+                          //           context,
+                          //           AppRoutes.groupScreen,
+                          //         );
+                          //       },
+                          //       child: const Icon(
+                          //         Icons.groups_outlined,
+                          //         color: Colors.white,
+                          //         size: 30,
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
                         ),
 
                         Positioned(

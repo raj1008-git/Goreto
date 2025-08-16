@@ -13,6 +13,7 @@ import 'core/services/dio_client.dart';
 import 'data/datasources/remote/activity_api_service.dart';
 import 'data/datasources/remote/category_api_service.dart';
 import 'data/datasources/remote/group_service_api.dart';
+import 'data/datasources/remote/notification_api_service.dart';
 import 'data/datasources/remote/popular_places_api_service.dart';
 import 'data/providers/activity_provider.dart';
 import 'data/providers/category_filter_provider.dart';
@@ -23,6 +24,7 @@ import 'data/providers/group_provider.dart';
 import 'data/providers/like_and_comment_provider.dart';
 import 'data/providers/location_provider.dart';
 import 'data/providers/my_post_provider.dart';
+import 'data/providers/notification_provider.dart';
 import 'data/providers/payment_provider.dart';
 import 'data/providers/popular_place_provider.dart';
 import 'data/providers/post_providers.dart';
@@ -77,6 +79,9 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) =>
               PopularPlacesProvider(PopularPlacesApiService(DioClient().dio)),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => NotificationProvider(NotificationApiService(Dio())),
         ),
         ChangeNotifierProvider(create: (_) => FavoritesProvider()),
       ],
