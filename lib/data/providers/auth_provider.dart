@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:goreto/data/datasources/remote/auth_api_service.dart';
 import 'package:goreto/data/models/auth/login_response_model.dart';
+import 'package:goreto/data/models/auth/register_response_model.dart';
 
 import '../../../core/services/secure_storage_service.dart';
 import '../../core/services/biometric_auth_services.dart';
@@ -13,6 +14,9 @@ class AuthProvider extends ChangeNotifier {
 
   UserModel? _user;
   UserModel? get user => _user;
+
+  RegisterUserModel? _registeredUser;
+  RegisterUserModel? get registeredUser => _registeredUser;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -32,6 +36,52 @@ class AuthProvider extends ChangeNotifier {
     _isBiometricEnabled = await _biometricService.isBiometricLoginEnabled();
     _biometricTypeName = await _biometricService.getBiometricTypeName();
     notifyListeners();
+  }
+
+  // Registration
+  Future<void> register({
+    required String name,
+    required String email,
+    required String password,
+    required String passwordConfirmation,
+    required String country,
+  }) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await _api.register(
+        name: name,
+        email: email,
+        password: password,
+        passwordConfirmation: passwordConfirmation,
+        country: country,
+      );
+
+      _registeredUser = response.user;
+    } catch (e) {
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Email verification
+  Future<void> verifyEmail(String token) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      await _api.verifyEmail(token);
+      // Clear the registered user after successful verification
+      _registeredUser = null;
+    } catch (e) {
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   // Regular login
@@ -116,6 +166,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> logout() async {
     try {
       _user = null;
+      _registeredUser = null;
       await _storage.clear();
       // Note: We keep biometric settings even after logout
       // so user doesn't need to set it up again

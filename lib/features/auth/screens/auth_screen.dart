@@ -10,6 +10,7 @@ import '../../../core/constants/appColors.dart';
 import '../../../core/services/login_count_service.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_textfield.dart';
+import 'email_verification_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   final bool isInitiallyLogin;
@@ -29,6 +30,9 @@ class _AuthScreenState extends State<AuthScreen> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
+  final TextEditingController countryController = TextEditingController(
+    text: "nepal",
+  );
 
   @override
   void initState() {
@@ -246,6 +250,11 @@ class _AuthScreenState extends State<AuthScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
+                    CustomTextField(
+                      controller: countryController,
+                      hintText: "Country",
+                    ),
+                    const SizedBox(height: 16),
                   ],
 
                   if (isLogin) ...[
@@ -336,10 +345,94 @@ class _AuthScreenState extends State<AuthScreen> {
                           );
                         }
                       } else {
-                        SnackbarHelper.show(
+                        // Registration logic
+                        final authProvider = Provider.of<AuthProvider>(
                           context,
-                          "Registration not implemented yet.",
+                          listen: false,
                         );
+
+                        final name = usernameController.text.trim();
+                        final email = emailController.text.trim();
+                        final password = passwordController.text.trim();
+                        final confirmPassword = confirmPasswordController.text
+                            .trim();
+                        final country = countryController.text.trim();
+
+                        // Validation
+                        if (name.isEmpty ||
+                            email.isEmpty ||
+                            password.isEmpty ||
+                            confirmPassword.isEmpty ||
+                            country.isEmpty) {
+                          SnackbarHelper.show(
+                            context,
+                            "Please fill in all fields",
+                          );
+                          return;
+                        }
+
+                        if (password != confirmPassword) {
+                          SnackbarHelper.show(
+                            context,
+                            "Passwords do not match",
+                          );
+                          return;
+                        }
+
+                        if (password.length < 6) {
+                          SnackbarHelper.show(
+                            context,
+                            "Password must be at least 6 characters long",
+                          );
+                          return;
+                        }
+
+                        // Show loading dialog
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (_) => const Center(child: AppLoader()),
+                        );
+
+                        try {
+                          await authProvider.register(
+                            name: name,
+                            email: email,
+                            password: password,
+                            passwordConfirmation: confirmPassword,
+                            country: country,
+                          );
+
+                          if (!context.mounted) return;
+
+                          // Close loader
+                          Navigator.of(context).pop();
+
+                          // Show success message
+                          SnackbarHelper.show(
+                            context,
+                            "Registration successful! Please check your email for verification code.",
+                          );
+
+                          // Navigate to email verification screen
+                          Navigator.push(
+                            context,
+                            PageTransition(
+                              child: EmailVerificationScreen(
+                                email: email,
+                                userName: name,
+                              ),
+                              type: PageTransitionType.rightToLeft,
+                              duration: const Duration(milliseconds: 300),
+                            ),
+                          );
+                        } catch (e) {
+                          Navigator.of(context).pop(); // Close loader
+                          SnackbarHelper.show(
+                            context,
+                            "Registration failed: ${e.toString()}",
+                          );
+                        }
                       }
                     },
                     backgroundColor: AppColors.primary,
@@ -426,6 +519,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             emailController.clear();
                             passwordController.clear();
                             confirmPasswordController.clear();
+                            countryController.text = "nepal";
                             obscurePassword = true;
                             obscureConfirmPassword = true;
                           });

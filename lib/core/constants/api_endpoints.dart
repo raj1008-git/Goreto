@@ -2,7 +2,8 @@ class ApiEndpoints {
   static const String ip = "110.34.1.123";
   static const String baseUrl = "http://110.34.1.123:8080/api";
   static const String storageBaseUrl = "http://110.34.1.123:8080/storage";
-
+  static const String register = "$baseUrl/register";
+  static const String verifyEmail = "$baseUrl/verify-email";
   static const String login = "$baseUrl/login";
   static const String placesByCategory = "$baseUrl/places-by-category";
   static const String userLocation = "$baseUrl/user-location";
