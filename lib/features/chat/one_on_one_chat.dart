@@ -116,11 +116,32 @@ class _OneOnOneChatScreenState extends State<OneOnOneChatScreen> {
         '📨 Created message model: ${newMessage.id} - ${newMessage.messages}',
       );
 
+      // Get current user ID to check if this is our own message
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final currentUserId = authProvider.user?.id;
+
       if (mounted) {
         setState(() {
           // Check if message already exists to avoid duplicates
-          final exists = messages.any((msg) => msg.id == newMessage.id);
+          final exists = messages.any(
+            (msg) =>
+                msg.id == newMessage.id ||
+                (msg.id == null &&
+                    msg.messages == newMessage.messages &&
+                    msg.sentBy == newMessage.sentBy),
+          );
+
           if (!exists) {
+            // If this is our own message, remove any temporary loading message first
+            if (newMessage.sentBy == currentUserId) {
+              messages.removeWhere(
+                (msg) =>
+                    msg.id == null &&
+                    msg.messages == newMessage.messages &&
+                    msg.sentBy == currentUserId,
+              );
+            }
+
             messages.add(newMessage);
             print(
               '📨 Added new message to UI. Total messages: ${messages.length}',
@@ -144,6 +165,68 @@ class _OneOnOneChatScreenState extends State<OneOnOneChatScreen> {
       _showErrorSnackBar('Failed to process new message');
     }
   }
+
+  // void _handleNewMessage(Map<String, dynamic> data) {
+  //   try {
+  //     print('📨 Raw message data received: $data');
+  //     print('📨 Data type: ${data.runtimeType}');
+  //     print('📨 Data keys: ${data.keys.toList()}');
+  //
+  //     // Debug: Print each key-value pair
+  //     data.forEach((key, value) {
+  //       print('📨 $key: $value (${value.runtimeType})');
+  //     });
+  //
+  //     Map<String, dynamic> messageData = data;
+  //
+  //     // Check for different possible data structures
+  //     if (data.containsKey('message') && data['message'] is Map) {
+  //       print('📨 Found message wrapper, extracting...');
+  //       messageData = Map<String, dynamic>.from(data['message']);
+  //     } else if (data.containsKey('data') && data['data'] is Map) {
+  //       print('📨 Found data wrapper, extracting...');
+  //       messageData = Map<String, dynamic>.from(data['data']);
+  //     } else if (data.containsKey('messageData')) {
+  //       print('📨 Found messageData wrapper, extracting...');
+  //       messageData = Map<String, dynamic>.from(data['messageData']);
+  //     }
+  //
+  //     print('📨 Processing messageData: $messageData');
+  //
+  //     // Try to create MessageModel from the data
+  //     final newMessage = MessageModel.fromJson(messageData);
+  //     print(
+  //       '📨 Created message model: ${newMessage.id} - ${newMessage.messages}',
+  //     );
+  //
+  //     if (mounted) {
+  //       setState(() {
+  //         // Check if message already exists to avoid duplicates
+  //         final exists = messages.any((msg) => msg.id == newMessage.id);
+  //         if (!exists) {
+  //           messages.add(newMessage);
+  //           print(
+  //             '📨 Added new message to UI. Total messages: ${messages.length}',
+  //           );
+  //         } else {
+  //           print('📨 Message already exists, skipping duplicate');
+  //         }
+  //       });
+  //
+  //       // Scroll to bottom when new message arrives
+  //       WidgetsBinding.instance.addPostFrameCallback((_) {
+  //         _scrollToBottom();
+  //       });
+  //     }
+  //   } catch (e, stackTrace) {
+  //     print('❌ Error handling new message: $e');
+  //     print('❌ Stack trace: $stackTrace');
+  //     print('❌ Raw data: $data');
+  //
+  //     // Try to handle the error gracefully
+  //     _showErrorSnackBar('Failed to process new message');
+  //   }
+  // }
 
   void _loadMessages() async {
     try {
@@ -669,6 +752,70 @@ class _OneOnOneChatScreenState extends State<OneOnOneChatScreen> {
     );
   }
 
+  // void _sendMessage() async {
+  //   final messageText = _messageController.text.trim();
+  //   if (messageText.isEmpty || _isLoading) return;
+  //
+  //   // Get current user ID
+  //   final authProvider = Provider.of<AuthProvider>(context, listen: false);
+  //   final currentUserId = authProvider.user?.id;
+  //
+  //   if (currentUserId == null) {
+  //     _showErrorSnackBar('User not authenticated');
+  //     return;
+  //   }
+  //
+  //   // Create temporary message for immediate UI update
+  //   final tempMessage = MessageModel.createTemporary(
+  //     chatId: widget.chat.id,
+  //     messages: messageText,
+  //     sentBy: currentUserId,
+  //   );
+  //
+  //   // Clear input and add message to UI immediately
+  //   _messageController.clear();
+  //   setState(() {
+  //     messages.add(tempMessage);
+  //     _isLoading = true;
+  //   });
+  //
+  //   // Scroll to bottom
+  //   _scrollToBottom();
+  //
+  //   try {
+  //     // Send message to API
+  //     final request = SendMessageRequest(
+  //       chatId: widget.chat.id,
+  //       messages: messageText,
+  //     );
+  //
+  //     final response = await _chatApiService.sendMessage(request);
+  //
+  //     setState(() {
+  //       // Remove the last message (temporary one)
+  //       messages.removeLast();
+  //       // Add the real message from server
+  //       messages.add(response.data);
+  //       _isLoading = false;
+  //     });
+  //
+  //     print('✅ Message sent successfully: ${response.data.id}');
+  //   } catch (e) {
+  //     print('❌ Failed to send message: $e');
+  //
+  //     // Update temp message to show error
+  //     setState(() {
+  //       final tempIndex = messages.length - 1;
+  //       messages[tempIndex] = tempMessage.copyWith(
+  //         isLoading: false,
+  //         hasError: true,
+  //       );
+  //       _isLoading = false;
+  //     });
+  //
+  //     _showErrorSnackBar('Failed to send message');
+  //   }
+  // }
   void _sendMessage() async {
     final messageText = _messageController.text.trim();
     if (messageText.isEmpty || _isLoading) return;
@@ -708,31 +855,128 @@ class _OneOnOneChatScreenState extends State<OneOnOneChatScreen> {
 
       final response = await _chatApiService.sendMessage(request);
 
-      setState(() {
-        // Remove the last message (temporary one)
-        messages.removeLast();
-        // Add the real message from server
-        messages.add(response.data);
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          // Remove the temporary message
+          messages.removeWhere(
+            (msg) =>
+                msg.id == null &&
+                msg.messages == messageText &&
+                msg.sentBy == currentUserId,
+          );
+
+          // Check if we already have this message from Pusher
+          final existsFromPusher = messages.any(
+            (msg) => msg.id == response.data.id,
+          );
+
+          if (!existsFromPusher) {
+            // Add the real message from server only if not already received via Pusher
+            messages.add(response.data);
+          }
+
+          _isLoading = false;
+        });
+      }
 
       print('✅ Message sent successfully: ${response.data.id}');
     } catch (e) {
       print('❌ Failed to send message: $e');
 
-      // Update temp message to show error
-      setState(() {
-        final tempIndex = messages.length - 1;
-        messages[tempIndex] = tempMessage.copyWith(
-          isLoading: false,
-          hasError: true,
-        );
-        _isLoading = false;
-      });
+      if (mounted) {
+        // Update temp message to show error instead of removing it
+        setState(() {
+          final tempIndex = messages.indexWhere(
+            (msg) =>
+                msg.id == null &&
+                msg.messages == messageText &&
+                msg.sentBy == currentUserId,
+          );
+          if (tempIndex != -1) {
+            messages[tempIndex] = tempMessage.copyWith(
+              isLoading: false,
+              hasError: true,
+            );
+          }
+          _isLoading = false;
+        });
+      }
 
       _showErrorSnackBar('Failed to send message');
     }
   }
+  // void _sendMessage() async {
+  //   final messageText = _messageController.text.trim();
+  //   if (messageText.isEmpty || _isLoading) return;
+  //
+  //   // Get current user ID
+  //   final authProvider = Provider.of<AuthProvider>(context, listen: false);
+  //   final currentUserId = authProvider.user?.id;
+  //
+  //   if (currentUserId == null) {
+  //     _showErrorSnackBar('User not authenticated');
+  //     return;
+  //   }
+  //
+  //   // Create temporary message for immediate UI update
+  //   final tempMessage = MessageModel.createTemporary(
+  //     chatId: widget.chat.id,
+  //     messages: messageText,
+  //     sentBy: currentUserId,
+  //   );
+  //
+  //   // Clear input and add message to UI immediately
+  //   _messageController.clear();
+  //   setState(() {
+  //     messages.add(tempMessage);
+  //     _isLoading = true;
+  //   });
+  //
+  //   // Scroll to bottom
+  //   _scrollToBottom();
+  //
+  //   try {
+  //     // Send message to API
+  //     final request = SendMessageRequest(
+  //       chatId: widget.chat.id,
+  //       messages: messageText,
+  //     );
+  //
+  //     final response = await _chatApiService.sendMessage(request);
+  //
+  //     if (mounted) {
+  //       setState(() {
+  //         // Remove the temporary message
+  //         messages.removeWhere((msg) => msg.id == null && msg.isLoading);
+  //         // Add the real message from server
+  //         messages.add(response.data);
+  //         _isLoading = false;
+  //       });
+  //     }
+  //
+  //     print('✅ Message sent successfully: ${response.data.id}');
+  //   } catch (e) {
+  //     print('❌ Failed to send message: $e');
+  //
+  //     if (mounted) {
+  //       // Update temp message to show error instead of removing it
+  //       setState(() {
+  //         final tempIndex = messages.indexWhere(
+  //           (msg) => msg.id == null && msg.isLoading,
+  //         );
+  //         if (tempIndex != -1) {
+  //           messages[tempIndex] = tempMessage.copyWith(
+  //             isLoading: false,
+  //             hasError: true,
+  //           );
+  //         }
+  //         _isLoading = false;
+  //       });
+  //     }
+  //
+  //     _showErrorSnackBar('Failed to send message');
+  //   }
+  // }
 
   void _showErrorSnackBar(String message) {
     if (mounted) {
