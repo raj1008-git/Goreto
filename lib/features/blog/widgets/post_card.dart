@@ -20,18 +20,10 @@
 // class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
 //   bool isBookmarked = false;
 //   bool showFullText = false;
-//   late AnimationController _bookmarkController;
-//   late AnimationController _imageController;
 //   late AnimationController _likeController;
 //   late AnimationController _cardController;
-//   late AnimationController _pulseController;
-//   late AnimationController _shimmerController;
-//   late Animation<double> _bookmarkAnimation;
-//   late Animation<double> _imageAnimation;
 //   late Animation<double> _likeAnimation;
 //   late Animation<double> _cardAnimation;
-//   late Animation<double> _pulseAnimation;
-//   late Animation<double> _shimmerAnimation;
 //
 //   final TextEditingController _commentController = TextEditingController();
 //   final FocusNode _commentFocusNode = FocusNode();
@@ -39,14 +31,6 @@
 //   @override
 //   void initState() {
 //     super.initState();
-//     _bookmarkController = AnimationController(
-//       duration: const Duration(milliseconds: 400),
-//       vsync: this,
-//     );
-//     _imageController = AnimationController(
-//       duration: const Duration(milliseconds: 800),
-//       vsync: this,
-//     );
 //     _likeController = AnimationController(
 //       duration: const Duration(milliseconds: 300),
 //       vsync: this,
@@ -55,41 +39,15 @@
 //       duration: const Duration(milliseconds: 600),
 //       vsync: this,
 //     );
-//     _pulseController = AnimationController(
-//       duration: const Duration(milliseconds: 1200),
-//       vsync: this,
-//     );
-//     _shimmerController = AnimationController(
-//       duration: const Duration(milliseconds: 2000),
-//       vsync: this,
-//     )..repeat();
-//
-//     _bookmarkAnimation = Tween<double>(begin: 1.0, end: 1.4).animate(
-//       CurvedAnimation(parent: _bookmarkController, curve: Curves.elasticOut),
-//     );
-//
-//     _imageAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-//       CurvedAnimation(parent: _imageController, curve: Curves.easeOutBack),
-//     );
 //
 //     _likeAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
 //       CurvedAnimation(parent: _likeController, curve: Curves.elasticOut),
 //     );
-//
 //     _cardAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
 //       CurvedAnimation(parent: _cardController, curve: Curves.easeOutCubic),
 //     );
 //
-//     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
-//       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-//     );
-//
-//     _shimmerAnimation = Tween<double>(begin: -1.0, end: 2.0).animate(
-//       CurvedAnimation(parent: _shimmerController, curve: Curves.easeInOut),
-//     );
-//
 //     _cardController.forward();
-//     _imageController.forward();
 //
 //     // Initialize post data in provider
 //     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -104,78 +62,56 @@
 //
 //   @override
 //   void dispose() {
-//     _bookmarkController.dispose();
-//     _imageController.dispose();
 //     _likeController.dispose();
 //     _cardController.dispose();
-//     _pulseController.dispose();
-//     _shimmerController.dispose();
 //     _commentController.dispose();
 //     _commentFocusNode.dispose();
 //     super.dispose();
 //   }
 //
+//   void _showSnackBar(String message, Color color, IconData icon) {
+//     if (!context.mounted) return;
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       SnackBar(
+//         content: Row(
+//           children: [
+//             Container(
+//               padding: const EdgeInsets.all(8),
+//               decoration: BoxDecoration(
+//                 color: Colors.white.withOpacity(0.2),
+//                 borderRadius: BorderRadius.circular(12),
+//               ),
+//               child: Icon(icon, color: Colors.white, size: 20),
+//             ),
+//             const SizedBox(width: 16),
+//             Text(
+//               message,
+//               style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+//             ),
+//           ],
+//         ),
+//         backgroundColor: color,
+//         behavior: SnackBarBehavior.floating,
+//         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+//         margin: const EdgeInsets.all(20),
+//         duration: const Duration(seconds: 2),
+//         elevation: 0,
+//       ),
+//     );
+//   }
+//
 //   void _toggleBookmark(BuildContext context) async {
 //     setState(() => isBookmarked = !isBookmarked);
 //
-//     // Enhanced bookmark animation with pulse effect
-//     _bookmarkController.forward().then((_) {
-//       _bookmarkController.reverse();
-//     });
-//
-//     if (isBookmarked) {
-//       _pulseController.forward().then((_) {
-//         _pulseController.reverse();
-//       });
-//     }
-//
-//     final tempMessage = isBookmarked
+//     final message = isBookmarked
 //         ? '✨ Post bookmarked!'
 //         : '📝 Bookmark removed!';
-//     if (context.mounted) {
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(
-//           content: Row(
-//             children: [
-//               Container(
-//                 padding: const EdgeInsets.all(8),
-//                 decoration: BoxDecoration(
-//                   color: Colors.white.withOpacity(0.2),
-//                   borderRadius: BorderRadius.circular(12),
-//                 ),
-//                 child: Icon(
-//                   isBookmarked
-//                       ? Icons.bookmark_added_rounded
-//                       : Icons.bookmark_remove_rounded,
-//                   color: Colors.white,
-//                   size: 20,
-//                 ),
-//               ),
-//               const SizedBox(width: 16),
-//               Expanded(
-//                 child: Text(
-//                   tempMessage,
-//                   style: const TextStyle(
-//                     fontWeight: FontWeight.w600,
-//                     fontSize: 16,
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//           backgroundColor: isBookmarked
-//               ? AppColors.primary
-//               : AppColors.secondary,
-//           behavior: SnackBarBehavior.floating,
-//           shape: RoundedRectangleBorder(
-//             borderRadius: BorderRadius.circular(20),
-//           ),
-//           margin: const EdgeInsets.all(20),
-//           duration: const Duration(seconds: 2),
-//           elevation: 0,
-//         ),
-//       );
-//     }
+//     final color = isBookmarked ? AppColors.primary : AppColors.secondary;
+//     final icon = isBookmarked
+//         ? Icons.bookmark_added_rounded
+//         : Icons.bookmark_remove_rounded;
+//
+//     _showSnackBar(message, color, icon);
 //
 //     try {
 //       final provider = Provider.of<SocialPostApiProvider>(
@@ -186,41 +122,11 @@
 //     } catch (e) {
 //       if (mounted) {
 //         setState(() => isBookmarked = !isBookmarked);
-//
-//         if (context.mounted) {
-//           ScaffoldMessenger.of(context).hideCurrentSnackBar();
-//           ScaffoldMessenger.of(context).showSnackBar(
-//             SnackBar(
-//               content: Row(
-//                 children: [
-//                   Container(
-//                     padding: const EdgeInsets.all(8),
-//                     decoration: BoxDecoration(
-//                       color: Colors.white.withOpacity(0.2),
-//                       borderRadius: BorderRadius.circular(12),
-//                     ),
-//                     child: const Icon(
-//                       Icons.error_outline_rounded,
-//                       color: Colors.white,
-//                       size: 20,
-//                     ),
-//                   ),
-//                   const SizedBox(width: 16),
-//                   const Text(
-//                     'Failed to update bookmark',
-//                     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-//                   ),
-//                 ],
-//               ),
-//               backgroundColor: const Color(0xFFEF4444),
-//               behavior: SnackBarBehavior.floating,
-//               shape: RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.circular(20),
-//               ),
-//               margin: const EdgeInsets.all(20),
-//             ),
-//           );
-//         }
+//         _showSnackBar(
+//           'Failed to update bookmark',
+//           const Color(0xFFEF4444),
+//           Icons.error_outline_rounded,
+//         );
 //       }
 //     }
 //   }
@@ -231,95 +137,30 @@
 //       listen: false,
 //     );
 //
-//     _likeController.forward().then((_) {
-//       _likeController.reverse();
-//     });
+//     _likeController.forward().then((_) => _likeController.reverse());
 //
 //     final currentLikeCount = likeProvider.getLikeCount(widget.post.id);
 //     final wasLiked = currentLikeCount > 0;
 //
 //     likeProvider.setOptimisticLike(widget.post.id, !wasLiked);
 //
-//     if (context.mounted) {
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(
-//           content: Row(
-//             children: [
-//               Container(
-//                 padding: const EdgeInsets.all(8),
-//                 decoration: BoxDecoration(
-//                   color: Colors.white.withOpacity(0.2),
-//                   borderRadius: BorderRadius.circular(12),
-//                 ),
-//                 child: Icon(
-//                   !wasLiked
-//                       ? Icons.favorite_rounded
-//                       : Icons.favorite_border_rounded,
-//                   color: Colors.white,
-//                   size: 20,
-//                 ),
-//               ),
-//               const SizedBox(width: 16),
-//               Text(
-//                 !wasLiked ? '❤️ Post liked!' : '💔 Like removed!',
-//                 style: const TextStyle(
-//                   fontWeight: FontWeight.w600,
-//                   fontSize: 16,
-//                 ),
-//               ),
-//             ],
-//           ),
-//           backgroundColor: !wasLiked ? Colors.blue : const Color(0xFF6B7280),
-//           behavior: SnackBarBehavior.floating,
-//           shape: RoundedRectangleBorder(
-//             borderRadius: BorderRadius.circular(20),
-//           ),
-//           margin: const EdgeInsets.all(20),
-//           duration: const Duration(seconds: 2),
-//           elevation: 0,
-//         ),
-//       );
-//     }
+//     final message = !wasLiked ? '❤️ Post liked!' : '💔 Like removed!';
+//     final color = !wasLiked ? Colors.blue : const Color(0xFF6B7280);
+//     final icon = !wasLiked
+//         ? Icons.favorite_rounded
+//         : Icons.favorite_border_rounded;
+//
+//     _showSnackBar(message, color, icon);
 //
 //     try {
 //       await likeProvider.toggleLike(widget.post.id);
 //     } catch (e) {
 //       likeProvider.setOptimisticLike(widget.post.id, wasLiked);
-//
-//       if (context.mounted) {
-//         ScaffoldMessenger.of(context).hideCurrentSnackBar();
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           SnackBar(
-//             content: Row(
-//               children: [
-//                 Container(
-//                   padding: const EdgeInsets.all(8),
-//                   decoration: BoxDecoration(
-//                     color: Colors.white.withOpacity(0.2),
-//                     borderRadius: BorderRadius.circular(12),
-//                   ),
-//                   child: const Icon(
-//                     Icons.error_outline_rounded,
-//                     color: Colors.white,
-//                     size: 20,
-//                   ),
-//                 ),
-//                 const SizedBox(width: 16),
-//                 const Text(
-//                   'Failed to update like',
-//                   style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-//                 ),
-//               ],
-//             ),
-//             backgroundColor: const Color(0xFFEF4444),
-//             behavior: SnackBarBehavior.floating,
-//             shape: RoundedRectangleBorder(
-//               borderRadius: BorderRadius.circular(20),
-//             ),
-//             margin: const EdgeInsets.all(20),
-//           ),
-//         );
-//       }
+//       _showSnackBar(
+//         'Failed to update like',
+//         const Color(0xFFEF4444),
+//         Icons.error_outline_rounded,
+//       );
 //     }
 //   }
 //
@@ -345,7 +186,6 @@
 //         child: Column(
 //           mainAxisSize: MainAxisSize.min,
 //           children: [
-//             // Handle bar
 //             Container(
 //               width: 48,
 //               height: 5,
@@ -355,18 +195,13 @@
 //               ),
 //             ),
 //             const SizedBox(height: 24),
-//
-//             // Header
 //             Row(
 //               children: [
 //                 Container(
 //                   padding: const EdgeInsets.all(12),
 //                   decoration: BoxDecoration(
-//                     gradient: LinearGradient(
-//                       colors: [
-//                         const Color(0xFFEF4444),
-//                         const Color(0xFFDC2626),
-//                       ],
+//                     gradient: const LinearGradient(
+//                       colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
 //                     ),
 //                     borderRadius: BorderRadius.circular(16),
 //                     boxShadow: [
@@ -395,78 +230,42 @@
 //               ],
 //             ),
 //             const SizedBox(height: 24),
-//
-//             // Likers list
-//             ...likers.map(
-//               (liker) => Container(
-//                 margin: const EdgeInsets.only(bottom: 16),
-//                 padding: const EdgeInsets.all(16),
-//                 decoration: BoxDecoration(
-//                   color: Colors.white,
-//                   borderRadius: BorderRadius.circular(20),
-//                   border: Border.all(color: const Color(0xFFF1F5F9), width: 1),
-//                   boxShadow: [
-//                     BoxShadow(
-//                       color: Colors.black.withOpacity(0.04),
-//                       blurRadius: 20,
-//                       offset: const Offset(0, 4),
-//                     ),
-//                   ],
-//                 ),
-//                 child: Row(
-//                   children: [
-//                     Container(
-//                       decoration: BoxDecoration(
-//                         shape: BoxShape.circle,
-//                         gradient: LinearGradient(
-//                           colors: [
-//                             AppColors.primary.withOpacity(0.1),
-//                             AppColors.primary.withOpacity(0.05),
-//                           ],
-//                         ),
-//                         boxShadow: [
-//                           BoxShadow(
-//                             color: AppColors.primary.withOpacity(0.2),
-//                             blurRadius: 12,
-//                             offset: const Offset(0, 4),
-//                           ),
-//                         ],
-//                       ),
-//                       child: CircleAvatar(
-//                         radius: 26,
-//                         backgroundColor: Colors.transparent,
-//                         backgroundImage: liker.profilePictureUrl != null
-//                             ? NetworkImage(liker.profilePictureUrl!)
-//                             : null,
-//                         child: liker.profilePictureUrl == null
-//                             ? Text(
-//                                 liker.name.isNotEmpty
-//                                     ? liker.name[0].toUpperCase()
-//                                     : 'U',
-//                                 style: TextStyle(
-//                                   fontWeight: FontWeight.w800,
-//                                   color: AppColors.primary,
-//                                   fontSize: 18,
-//                                 ),
-//                               )
-//                             : null,
-//                       ),
-//                     ),
-//                     const SizedBox(width: 16),
-//                     Text(
-//                       liker.name,
-//                       style: const TextStyle(
-//                         fontWeight: FontWeight.w700,
-//                         color: Color(0xFF111827),
-//                         fontSize: 17,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
+//             ...likers.map((liker) => _buildLikerItem(liker)),
 //           ],
 //         ),
+//       ),
+//     );
+//   }
+//
+//   Widget _buildLikerItem(dynamic liker) {
+//     return Container(
+//       margin: const EdgeInsets.only(bottom: 16),
+//       padding: const EdgeInsets.all(16),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(20),
+//         border: Border.all(color: const Color(0xFFF1F5F9)),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withOpacity(0.04),
+//             blurRadius: 20,
+//             offset: const Offset(0, 4),
+//           ),
+//         ],
+//       ),
+//       child: Row(
+//         children: [
+//           _buildAvatar(liker.profilePictureUrl, liker.name, 26),
+//           const SizedBox(width: 16),
+//           Text(
+//             liker.name,
+//             style: const TextStyle(
+//               fontWeight: FontWeight.w700,
+//               color: Color(0xFF111827),
+//               fontSize: 17,
+//             ),
+//           ),
+//         ],
 //       ),
 //     );
 //   }
@@ -484,90 +283,62 @@
 //     _commentFocusNode.unfocus();
 //
 //     likeProvider.addOptimisticComment(widget.post.id, commentText);
-//
-//     if (context.mounted) {
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(
-//           content: Row(
-//             children: [
-//               Container(
-//                 padding: const EdgeInsets.all(8),
-//                 decoration: BoxDecoration(
-//                   color: Colors.white.withOpacity(0.2),
-//                   borderRadius: BorderRadius.circular(12),
-//                 ),
-//                 child: const Icon(
-//                   Icons.chat_bubble_rounded,
-//                   color: Colors.white,
-//                   size: 20,
-//                 ),
-//               ),
-//               const SizedBox(width: 16),
-//               const Text(
-//                 '💬 Comment added!',
-//                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-//               ),
-//             ],
-//           ),
-//           backgroundColor: const Color(0xFF10B981),
-//           behavior: SnackBarBehavior.floating,
-//           shape: RoundedRectangleBorder(
-//             borderRadius: BorderRadius.circular(20),
-//           ),
-//           margin: const EdgeInsets.all(20),
-//           duration: const Duration(seconds: 2),
-//           elevation: 0,
-//         ),
-//       );
-//     }
+//     _showSnackBar(
+//       '💬 Comment added!',
+//       const Color(0xFF10B981),
+//       Icons.chat_bubble_rounded,
+//     );
 //
 //     try {
 //       final success = await likeProvider.addComment(
 //         widget.post.id,
 //         commentText,
 //       );
-//
-//       if (!success) {
-//         throw Exception('Failed to add comment');
-//       }
+//       if (!success) throw Exception('Failed to add comment');
 //     } catch (e) {
 //       likeProvider.removeOptimisticComment(widget.post.id);
-//
-//       if (context.mounted) {
-//         ScaffoldMessenger.of(context).hideCurrentSnackBar();
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           SnackBar(
-//             content: Row(
-//               children: [
-//                 Container(
-//                   padding: const EdgeInsets.all(8),
-//                   decoration: BoxDecoration(
-//                     color: Colors.white.withOpacity(0.2),
-//                     borderRadius: BorderRadius.circular(12),
-//                   ),
-//                   child: const Icon(
-//                     Icons.error_outline_rounded,
-//                     color: Colors.white,
-//                     size: 20,
-//                   ),
-//                 ),
-//                 const SizedBox(width: 16),
-//                 const Text(
-//                   'Failed to add comment',
-//                   style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-//                 ),
-//               ],
-//             ),
-//             backgroundColor: const Color(0xFFEF4444),
-//             behavior: SnackBarBehavior.floating,
-//             shape: RoundedRectangleBorder(
-//               borderRadius: BorderRadius.circular(20),
-//             ),
-//             margin: const EdgeInsets.all(20),
-//           ),
-//         );
-//       }
+//       _showSnackBar(
+//         'Failed to add comment',
+//         const Color(0xFFEF4444),
+//         Icons.error_outline_rounded,
+//       );
 //     }
+//   }
+//
+//   Widget _buildAvatar(String? imageUrl, String name, double radius) {
+//     return Container(
+//       decoration: BoxDecoration(
+//         shape: BoxShape.circle,
+//         gradient: LinearGradient(
+//           colors: [
+//             AppColors.primary.withOpacity(0.1),
+//             AppColors.primary.withOpacity(0.05),
+//           ],
+//         ),
+//         boxShadow: [
+//           BoxShadow(
+//             color: AppColors.primary.withOpacity(0.2),
+//             blurRadius: 12,
+//             offset: const Offset(0, 4),
+//           ),
+//         ],
+//       ),
+//       child: CircleAvatar(
+//         radius: radius,
+//         backgroundColor: Colors.transparent,
+//         backgroundImage: imageUrl != null ? NetworkImage(imageUrl) : null,
+//         child: imageUrl == null
+//             ? Text(
+//                 name.isNotEmpty ? name[0].toUpperCase() : 'U',
+//                 style: TextStyle(
+//                   fontWeight: FontWeight.w800,
+//                   color: AppColors.primary,
+//                   fontSize: radius * 0.7,
+//                 ),
+//               )
+//             : null,
+//       ),
+//     );
 //   }
 //
 //   @override
@@ -613,50 +384,14 @@
 //                 child: Column(
 //                   crossAxisAlignment: CrossAxisAlignment.start,
 //                   children: [
-//                     // Modern User Header
 //                     _buildUserHeader(),
-//
-//                     // Enhanced Image Section
 //                     _buildImageSection(),
-//
-//                     // Content Section
 //                     _buildContentSection(displayText, description),
-//
-//                     // Modern Action Buttons
 //                     _buildActionButtons(likeCount, commentCount),
-//
-//                     // Comments Section
 //                     if (isShowingComments) ...[
 //                       _buildCommentInput(),
 //                       if (isCommentLoading)
-//                         Container(
-//                           padding: const EdgeInsets.all(32),
-//                           child: Center(
-//                             child: Column(
-//                               children: [
-//                                 SizedBox(
-//                                   width: 40,
-//                                   height: 40,
-//                                   child: CircularProgressIndicator(
-//                                     strokeWidth: 3,
-//                                     valueColor: AlwaysStoppedAnimation<Color>(
-//                                       AppColors.primary,
-//                                     ),
-//                                   ),
-//                                 ),
-//                                 const SizedBox(height: 16),
-//                                 Text(
-//                                   'Loading comments...',
-//                                   style: TextStyle(
-//                                     color: AppColors.primary,
-//                                     fontWeight: FontWeight.w600,
-//                                     fontSize: 14,
-//                                   ),
-//                                 ),
-//                               ],
-//                             ),
-//                           ),
-//                         )
+//                         _buildLoadingIndicator()
 //                       else
 //                         _buildCommentsList(comments),
 //                     ],
@@ -675,42 +410,10 @@
 //       padding: const EdgeInsets.all(24),
 //       child: Row(
 //         children: [
-//           Container(
-//             decoration: BoxDecoration(
-//               shape: BoxShape.circle,
-//               gradient: LinearGradient(
-//                 colors: [
-//                   AppColors.primary.withOpacity(0.1),
-//                   AppColors.primary.withOpacity(0.05),
-//                 ],
-//               ),
-//               boxShadow: [
-//                 BoxShadow(
-//                   color: AppColors.primary.withOpacity(0.2),
-//                   blurRadius: 16,
-//                   offset: const Offset(0, 6),
-//                 ),
-//               ],
-//             ),
-//             child: CircleAvatar(
-//               radius: 28,
-//               backgroundColor: Colors.transparent,
-//               backgroundImage: widget.post.userProfilePicture != null
-//                   ? NetworkImage(widget.post.userProfilePicture!)
-//                   : null,
-//               child: widget.post.userProfilePicture == null
-//                   ? Text(
-//                       widget.post.userName.isNotEmpty
-//                           ? widget.post.userName[0].toUpperCase()
-//                           : 'U',
-//                       style: TextStyle(
-//                         fontWeight: FontWeight.w800,
-//                         color: AppColors.secondary,
-//                         fontSize: 20,
-//                       ),
-//                     )
-//                   : null,
-//             ),
+//           _buildAvatar(
+//             widget.post.userProfilePicture,
+//             widget.post.userName,
+//             28,
 //           ),
 //           const SizedBox(width: 16),
 //           Expanded(
@@ -734,10 +437,7 @@
 //                   decoration: BoxDecoration(
 //                     color: const Color(0xFFF8FAFC),
 //                     borderRadius: BorderRadius.circular(16),
-//                     border: Border.all(
-//                       color: const Color(0xFFE2E8F0),
-//                       width: 1,
-//                     ),
+//                     border: Border.all(color: const Color(0xFFE2E8F0)),
 //                   ),
 //                   child: Text(
 //                     DateFormat(
@@ -759,211 +459,151 @@
 //   }
 //
 //   Widget _buildImageSection() {
-//     return AnimatedBuilder(
-//       animation: _pulseAnimation,
-//       builder: (context, child) {
-//         return Transform.scale(
-//           scale: isBookmarked ? _pulseAnimation.value : 1.0,
-//           child: Container(
-//             margin: const EdgeInsets.symmetric(horizontal: 16),
-//             child: Stack(
-//               children: [
-//                 ClipRRect(
-//                   borderRadius: BorderRadius.circular(20),
-//                   child: AspectRatio(
-//                     aspectRatio: 16 / 10,
-//                     child: Container(
-//                       decoration: BoxDecoration(
-//                         boxShadow: [
-//                           BoxShadow(
-//                             color: Colors.black.withOpacity(0.12),
-//                             blurRadius: 24,
-//                             offset: const Offset(0, 8),
-//                           ),
-//                         ],
-//                       ),
-//                       child: Image.network(
-//                         widget.post.imageUrl,
-//                         fit: BoxFit.cover,
-//                         width: double.infinity,
-//                         errorBuilder: (context, error, stackTrace) {
-//                           return Container(
-//                             decoration: BoxDecoration(
-//                               gradient: LinearGradient(
-//                                 begin: Alignment.topLeft,
-//                                 end: Alignment.bottomRight,
-//                                 colors: [
-//                                   const Color(0xFFF8FAFC),
-//                                   const Color(0xFFE2E8F0),
-//                                 ],
-//                               ),
-//                               borderRadius: BorderRadius.circular(20),
-//                             ),
-//                             child: Center(
-//                               child: Column(
-//                                 mainAxisAlignment: MainAxisAlignment.center,
-//                                 children: [
-//                                   Container(
-//                                     padding: const EdgeInsets.all(16),
-//                                     decoration: BoxDecoration(
-//                                       color: AppColors.primary.withOpacity(0.1),
-//                                       shape: BoxShape.circle,
-//                                     ),
-//                                     child: Icon(
-//                                       Icons.image_not_supported_rounded,
-//                                       size: 40,
-//                                       color: AppColors.primary.withOpacity(0.6),
-//                                     ),
-//                                   ),
-//                                   const SizedBox(height: 12),
-//                                   Text(
-//                                     'Image not available',
-//                                     style: TextStyle(
-//                                       color: AppColors.primary.withOpacity(0.8),
-//                                       fontWeight: FontWeight.w600,
-//                                       fontSize: 16,
-//                                     ),
-//                                   ),
-//                                 ],
-//                               ),
-//                             ),
-//                           );
-//                         },
-//                         loadingBuilder: (context, child, loadingProgress) {
-//                           if (loadingProgress == null) return child;
-//                           return Container(
-//                             decoration: BoxDecoration(
-//                               borderRadius: BorderRadius.circular(20),
-//                             ),
-//                             child: Stack(
-//                               children: [
-//                                 Container(
-//                                   decoration: BoxDecoration(
-//                                     gradient: LinearGradient(
-//                                       colors: [
-//                                         AppColors.primary.withOpacity(0.05),
-//                                         AppColors.primary.withOpacity(0.1),
-//                                       ],
-//                                     ),
-//                                   ),
-//                                 ),
-//                                 AnimatedBuilder(
-//                                   animation: _shimmerAnimation,
-//                                   builder: (context, child) {
-//                                     return Container(
-//                                       decoration: BoxDecoration(
-//                                         gradient: LinearGradient(
-//                                           begin: Alignment(
-//                                             -1.0 + _shimmerAnimation.value,
-//                                             0.0,
-//                                           ),
-//                                           end: Alignment(
-//                                             1.0 + _shimmerAnimation.value,
-//                                             0.0,
-//                                           ),
-//                                           colors: [
-//                                             Colors.transparent,
-//                                             Colors.white.withOpacity(0.3),
-//                                             Colors.transparent,
-//                                           ],
-//                                         ),
-//                                       ),
-//                                     );
-//                                   },
-//                                 ),
-//                                 Center(
-//                                   child: Column(
-//                                     mainAxisAlignment: MainAxisAlignment.center,
-//                                     children: [
-//                                       SizedBox(
-//                                         width: 50,
-//                                         height: 50,
-//                                         child: CircularProgressIndicator(
-//                                           value:
-//                                               loadingProgress
-//                                                       .expectedTotalBytes !=
-//                                                   null
-//                                               ? loadingProgress
-//                                                         .cumulativeBytesLoaded /
-//                                                     loadingProgress
-//                                                         .expectedTotalBytes!
-//                                               : null,
-//                                           strokeWidth: 4,
-//                                           valueColor:
-//                                               AlwaysStoppedAnimation<Color>(
-//                                                 AppColors.primary,
-//                                               ),
-//                                         ),
-//                                       ),
-//                                       const SizedBox(height: 20),
-//                                       Text(
-//                                         'Loading image...',
-//                                         style: TextStyle(
-//                                           color: AppColors.primary,
-//                                           fontWeight: FontWeight.w600,
-//                                           fontSize: 16,
-//                                         ),
-//                                       ),
-//                                     ],
-//                                   ),
-//                                 ),
-//                               ],
-//                             ),
-//                           );
-//                         },
-//                       ),
+//     return Container(
+//       margin: const EdgeInsets.symmetric(horizontal: 16),
+//       child: Stack(
+//         children: [
+//           ClipRRect(
+//             borderRadius: BorderRadius.circular(20),
+//             child: AspectRatio(
+//               aspectRatio: 16 / 10,
+//               child: Container(
+//                 decoration: BoxDecoration(
+//                   boxShadow: [
+//                     BoxShadow(
+//                       color: Colors.black.withOpacity(0.12),
+//                       blurRadius: 24,
+//                       offset: const Offset(0, 8),
 //                     ),
-//                   ),
+//                   ],
 //                 ),
-//                 Positioned(
-//                   top: 16,
-//                   right: 16,
-//                   child: AnimatedBuilder(
-//                     animation: _bookmarkAnimation,
-//                     builder: (context, child) {
-//                       return Transform.scale(
-//                         scale: _bookmarkAnimation.value,
-//                         child: GestureDetector(
-//                           onTap: () => _toggleBookmark(context),
-//                           child: Container(
-//                             padding: const EdgeInsets.all(12),
-//                             decoration: BoxDecoration(
-//                               color: Colors.white,
-//                               borderRadius: BorderRadius.circular(20),
-//                               border: Border.all(
-//                                 color: isBookmarked
-//                                     ? AppColors.primary.withOpacity(0.3)
-//                                     : const Color(0xFFE2E8F0),
-//                                 width: 2,
-//                               ),
-//                               boxShadow: [
-//                                 BoxShadow(
-//                                   color: Colors.black.withOpacity(0.1),
-//                                   blurRadius: 20,
-//                                   offset: const Offset(0, 4),
-//                                 ),
-//                               ],
-//                             ),
-//                             child: Icon(
-//                               isBookmarked
-//                                   ? Icons.bookmark_rounded
-//                                   : Icons.bookmark_border_rounded,
-//                               color: isBookmarked
-//                                   ? AppColors.primary
-//                                   : const Color(0xFF64748B),
-//                               size: 24,
-//                             ),
-//                           ),
-//                         ),
-//                       );
-//                     },
-//                   ),
+//                 child: Image.network(
+//                   widget.post.imageUrl,
+//                   fit: BoxFit.cover,
+//                   width: double.infinity,
+//                   errorBuilder: (context, error, stackTrace) =>
+//                       _buildImageError(),
+//                   loadingBuilder: (context, child, loadingProgress) {
+//                     if (loadingProgress == null) return child;
+//                     return _buildImageLoading(loadingProgress);
+//                   },
 //                 ),
-//               ],
+//               ),
 //             ),
 //           ),
-//         );
-//       },
+//           Positioned(
+//             top: 16,
+//             right: 16,
+//             child: GestureDetector(
+//               onTap: () => _toggleBookmark(context),
+//               child: Container(
+//                 padding: const EdgeInsets.all(12),
+//                 decoration: BoxDecoration(
+//                   color: Colors.white,
+//                   borderRadius: BorderRadius.circular(20),
+//                   border: Border.all(
+//                     color: isBookmarked
+//                         ? AppColors.primary.withOpacity(0.3)
+//                         : const Color(0xFFE2E8F0),
+//                     width: 2,
+//                   ),
+//                   boxShadow: [
+//                     BoxShadow(
+//                       color: Colors.black.withOpacity(0.1),
+//                       blurRadius: 20,
+//                       offset: const Offset(0, 4),
+//                     ),
+//                   ],
+//                 ),
+//                 child: Icon(
+//                   isBookmarked
+//                       ? Icons.bookmark_rounded
+//                       : Icons.bookmark_border_rounded,
+//                   color: isBookmarked
+//                       ? AppColors.primary
+//                       : const Color(0xFF64748B),
+//                   size: 24,
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+//
+//   Widget _buildImageError() {
+//     return Container(
+//       decoration: BoxDecoration(
+//         gradient: const LinearGradient(
+//           begin: Alignment.topLeft,
+//           end: Alignment.bottomRight,
+//           colors: [Color(0xFFF8FAFC), Color(0xFFE2E8F0)],
+//         ),
+//         borderRadius: BorderRadius.circular(20),
+//       ),
+//       child: Center(
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             Container(
+//               padding: const EdgeInsets.all(16),
+//               decoration: BoxDecoration(
+//                 color: AppColors.primary.withOpacity(0.1),
+//                 shape: BoxShape.circle,
+//               ),
+//               child: Icon(
+//                 Icons.image_not_supported_rounded,
+//                 size: 40,
+//                 color: AppColors.primary.withOpacity(0.6),
+//               ),
+//             ),
+//             const SizedBox(height: 12),
+//             Text(
+//               'Image not available',
+//               style: TextStyle(
+//                 color: AppColors.primary.withOpacity(0.8),
+//                 fontWeight: FontWeight.w600,
+//                 fontSize: 16,
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+//
+//   Widget _buildImageLoading(ImageChunkEvent loadingProgress) {
+//     return Container(
+//       decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+//       child: Center(
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             SizedBox(
+//               width: 50,
+//               height: 50,
+//               child: CircularProgressIndicator(
+//                 value: loadingProgress.expectedTotalBytes != null
+//                     ? loadingProgress.cumulativeBytesLoaded /
+//                           loadingProgress.expectedTotalBytes!
+//                     : null,
+//                 strokeWidth: 4,
+//                 valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+//               ),
+//             ),
+//             const SizedBox(height: 20),
+//             Text(
+//               'Loading image...',
+//               style: TextStyle(
+//                 color: AppColors.primary,
+//                 fontWeight: FontWeight.w600,
+//                 fontSize: 16,
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
 //     );
 //   }
 //
@@ -1000,10 +640,7 @@
 //                     ],
 //                   ),
 //                   borderRadius: BorderRadius.circular(24),
-//                   border: Border.all(
-//                     color: AppColors.primary.withOpacity(0.2),
-//                     width: 1,
-//                   ),
+//                   border: Border.all(color: AppColors.primary.withOpacity(0.2)),
 //                 ),
 //                 child: Row(
 //                   mainAxisSize: MainAxisSize.min,
@@ -1038,10 +675,10 @@
 //       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
 //       child: Column(
 //         children: [
-//           Divider(),
+//           const Divider(),
 //           Row(
 //             children: [
-//               // Modern Like Button
+//               // Like Button
 //               GestureDetector(
 //                 onTap: _handleLike,
 //                 onLongPress: likeCount > 0 ? _showLikers : null,
@@ -1050,85 +687,24 @@
 //                   builder: (context, child) {
 //                     return Transform.scale(
 //                       scale: _likeAnimation.value,
-//                       child: Container(
-//                         padding: const EdgeInsets.symmetric(
-//                           horizontal: 20,
-//                           vertical: 12,
-//                         ),
-//                         decoration: BoxDecoration(
-//                           gradient: likeCount > 0
-//                               ? LinearGradient(
-//                                   colors: [
-//                                     const Color(0xFFEF4444),
-//                                     const Color(0xFFDC2626),
-//                                   ],
-//                                 )
-//                               : null,
-//                           color: likeCount > 0 ? null : const Color(0xFFF8FAFC),
-//                           borderRadius: BorderRadius.circular(24),
-//                           border: Border.all(
-//                             color: likeCount > 0
-//                                 ? Colors.transparent
-//                                 : const Color(0xFFE2E8F0),
-//                             width: 2,
-//                           ),
-//                           boxShadow: likeCount > 0
-//                               ? [
-//                                   BoxShadow(
-//                                     color: const Color(
-//                                       0xFFEF4444,
-//                                     ).withOpacity(0.3),
-//                                     blurRadius: 16,
-//                                     offset: const Offset(0, 4),
-//                                   ),
-//                                 ]
-//                               : null,
-//                         ),
-//                         child: Row(
-//                           mainAxisSize: MainAxisSize.min,
-//                           children: [
-//                             Icon(
-//                               likeCount > 0
-//                                   ? Icons.favorite_rounded
-//                                   : Icons.favorite_border_rounded,
-//                               color: likeCount > 0
-//                                   ? Colors.white
-//                                   : const Color(0xFF64748B),
-//                               size: 22,
-//                             ),
-//                             const SizedBox(width: 8),
-//                             Text(
-//                               '$likeCount',
-//                               style: TextStyle(
-//                                 fontWeight: FontWeight.w800,
-//                                 fontSize: 16,
-//                                 color: likeCount > 0
-//                                     ? Colors.white
-//                                     : const Color(0xFF64748B),
-//                               ),
-//                             ),
-//                             if (likeCount > 0) ...[
-//                               const SizedBox(width: 6),
-//                               Text(
-//                                 likeCount == 1 ? 'like' : 'likes',
-//                                 style: TextStyle(
-//                                   fontWeight: FontWeight.w600,
-//                                   fontSize: 13,
-//                                   color: Colors.white.withOpacity(0.9),
-//                                 ),
-//                               ),
-//                             ],
-//                           ],
-//                         ),
+//                       child: _buildActionButton(
+//                         icon: likeCount > 0
+//                             ? Icons.favorite_rounded
+//                             : Icons.favorite_border_rounded,
+//                         count: likeCount,
+//                         label: likeCount == 1 ? 'like' : 'likes',
+//                         isActive: likeCount > 0,
+//                         activeColors: [
+//                           const Color(0xFFEF4444),
+//                           const Color(0xFFDC2626),
+//                         ],
 //                       ),
 //                     );
 //                   },
 //                 ),
 //               ),
-//
 //               const SizedBox(width: 16),
-//
-//               // Modern Comment Button
+//               // Comment Button
 //               Consumer<LikeCommentProvider>(
 //                 builder: (context, provider, child) {
 //                   final isShowingComments = provider.isShowingComments(
@@ -1137,88 +713,17 @@
 //                   return GestureDetector(
 //                     onTap: () =>
 //                         provider.toggleCommentsVisibility(widget.post.id),
-//                     child: Container(
-//                       padding: const EdgeInsets.symmetric(
-//                         horizontal: 20,
-//                         vertical: 12,
-//                       ),
-//                       decoration: BoxDecoration(
-//                         gradient: isShowingComments
-//                             ? LinearGradient(
-//                                 colors: [
-//                                   AppColors.primary,
-//                                   AppColors.primary.withOpacity(0.8),
-//                                 ],
-//                               )
-//                             : null,
-//                         color: isShowingComments
-//                             ? null
-//                             : const Color(0xFFF8FAFC),
-//                         borderRadius: BorderRadius.circular(24),
-//                         border: Border.all(
-//                           color: isShowingComments
-//                               ? Colors.transparent
-//                               : const Color(0xFFE2E8F0),
-//                           width: 2,
-//                         ),
-//                         boxShadow: isShowingComments
-//                             ? [
-//                                 BoxShadow(
-//                                   color: AppColors.primary.withOpacity(0.3),
-//                                   blurRadius: 16,
-//                                   offset: const Offset(0, 4),
-//                                 ),
-//                               ]
-//                             : null,
-//                       ),
-//                       child: Row(
-//                         mainAxisSize: MainAxisSize.min,
-//                         children: [
-//                           Icon(
-//                             isShowingComments
-//                                 ? Icons.chat_bubble_rounded
-//                                 : Icons.chat_bubble_outline_rounded,
-//                             color: isShowingComments
-//                                 ? Colors.white
-//                                 : const Color(0xFF64748B),
-//                             size: 22,
-//                           ),
-//                           const SizedBox(width: 8),
-//                           Text(
-//                             '$commentCount',
-//                             style: TextStyle(
-//                               fontWeight: FontWeight.w800,
-//                               fontSize: 16,
-//                               color: isShowingComments
-//                                   ? Colors.white
-//                                   : const Color(0xFF64748B),
-//                             ),
-//                           ),
-//                           const SizedBox(width: 8),
-//                           Container(
-//                             padding: const EdgeInsets.symmetric(
-//                               horizontal: 10,
-//                               vertical: 4,
-//                             ),
-//                             decoration: BoxDecoration(
-//                               color: isShowingComments
-//                                   ? Colors.white.withOpacity(0.2)
-//                                   : AppColors.primary.withOpacity(0.1),
-//                               borderRadius: BorderRadius.circular(16),
-//                             ),
-//                             child: Text(
-//                               isShowingComments ? '' : '',
-//                               style: TextStyle(
-//                                 fontSize: 12,
-//                                 color: isShowingComments
-//                                     ? Colors.white
-//                                     : AppColors.primary,
-//                                 fontWeight: FontWeight.w700,
-//                               ),
-//                             ),
-//                           ),
-//                         ],
-//                       ),
+//                     child: _buildActionButton(
+//                       icon: isShowingComments
+//                           ? Icons.chat_bubble_rounded
+//                           : Icons.chat_bubble_outline_rounded,
+//                       count: commentCount,
+//                       label: '',
+//                       isActive: isShowingComments,
+//                       activeColors: [
+//                         AppColors.primary,
+//                         AppColors.primary.withOpacity(0.8),
+//                       ],
 //                     ),
 //                   );
 //                 },
@@ -1230,16 +735,73 @@
 //     );
 //   }
 //
+//   Widget _buildActionButton({
+//     required IconData icon,
+//     required int count,
+//     required String label,
+//     required bool isActive,
+//     required List<Color> activeColors,
+//   }) {
+//     return Container(
+//       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+//       decoration: BoxDecoration(
+//         gradient: isActive ? LinearGradient(colors: activeColors) : null,
+//         color: isActive ? null : const Color(0xFFF8FAFC),
+//         borderRadius: BorderRadius.circular(24),
+//         border: Border.all(
+//           color: isActive ? Colors.transparent : const Color(0xFFE2E8F0),
+//           width: 2,
+//         ),
+//         boxShadow: isActive
+//             ? [
+//                 BoxShadow(
+//                   color: activeColors[0].withOpacity(0.3),
+//                   blurRadius: 16,
+//                   offset: const Offset(0, 4),
+//                 ),
+//               ]
+//             : null,
+//       ),
+//       child: Row(
+//         mainAxisSize: MainAxisSize.min,
+//         children: [
+//           Icon(
+//             icon,
+//             color: isActive ? Colors.white : const Color(0xFF64748B),
+//             size: 22,
+//           ),
+//           const SizedBox(width: 8),
+//           Text(
+//             '$count',
+//             style: TextStyle(
+//               fontWeight: FontWeight.w800,
+//               fontSize: 16,
+//               color: isActive ? Colors.white : const Color(0xFF64748B),
+//             ),
+//           ),
+//           if (isActive && label.isNotEmpty) ...[
+//             const SizedBox(width: 6),
+//             Text(
+//               label,
+//               style: TextStyle(
+//                 fontWeight: FontWeight.w600,
+//                 fontSize: 13,
+//                 color: Colors.white.withOpacity(0.9),
+//               ),
+//             ),
+//           ],
+//         ],
+//       ),
+//     );
+//   }
+//
 //   Widget _buildCommentInput() {
 //     return Container(
 //       margin: const EdgeInsets.only(top: 8),
 //       padding: const EdgeInsets.all(24),
 //       decoration: BoxDecoration(
 //         border: Border(
-//           top: BorderSide(
-//             color: const Color(0xFFE2E8F0).withOpacity(0.6),
-//             width: 1,
-//           ),
+//           top: BorderSide(color: const Color(0xFFE2E8F0).withOpacity(0.6)),
 //         ),
 //         color: Colors.transparent,
 //       ),
@@ -1262,14 +824,14 @@
 //               child: TextField(
 //                 controller: _commentController,
 //                 focusNode: _commentFocusNode,
-//                 decoration: InputDecoration(
+//                 decoration: const InputDecoration(
 //                   hintText: 'Share your thoughts...',
 //                   border: InputBorder.none,
-//                   contentPadding: const EdgeInsets.symmetric(
+//                   contentPadding: EdgeInsets.symmetric(
 //                     horizontal: 24,
 //                     vertical: 16,
 //                   ),
-//                   hintStyle: const TextStyle(
+//                   hintStyle: TextStyle(
 //                     color: Color(0xFF94A3B8),
 //                     fontWeight: FontWeight.w500,
 //                     fontSize: 15,
@@ -1298,8 +860,6 @@
 //                     AppColors.primary,
 //                     AppColors.primary.withOpacity(0.8),
 //                   ],
-//                   begin: Alignment.topLeft,
-//                   end: Alignment.bottomRight,
 //                 ),
 //                 borderRadius: BorderRadius.circular(24),
 //                 boxShadow: [
@@ -1322,15 +882,42 @@
 //     );
 //   }
 //
+//   Widget _buildLoadingIndicator() {
+//     return Container(
+//       padding: const EdgeInsets.all(32),
+//       child: Center(
+//         child: Column(
+//           children: [
+//             SizedBox(
+//               width: 40,
+//               height: 40,
+//               child: CircularProgressIndicator(
+//                 strokeWidth: 3,
+//                 valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+//               ),
+//             ),
+//             const SizedBox(height: 16),
+//             Text(
+//               'Loading comments...',
+//               style: TextStyle(
+//                 color: AppColors.primary,
+//                 fontWeight: FontWeight.w600,
+//                 fontSize: 14,
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+//
 //   Widget _buildCommentsList(List<CommentModel> comments) {
 //     if (comments.isEmpty) {
 //       return Container(
-//         color: Colors.red,
 //         padding: const EdgeInsets.all(40),
 //         child: Column(
 //           children: [
 //             Container(
-//               color: Colors.transparent,
 //               padding: const EdgeInsets.all(24),
 //               decoration: BoxDecoration(
 //                 gradient: LinearGradient(
@@ -1394,7 +981,7 @@
 //       decoration: BoxDecoration(
 //         color: Colors.white,
 //         borderRadius: BorderRadius.circular(20),
-//         border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+//         border: Border.all(color: const Color(0xFFE2E8F0)),
 //         boxShadow: [
 //           BoxShadow(
 //             color: Colors.black.withOpacity(0.04),
@@ -1406,43 +993,7 @@
 //       child: Row(
 //         crossAxisAlignment: CrossAxisAlignment.start,
 //         children: [
-//           Container(
-//             decoration: BoxDecoration(
-//               shape: BoxShape.circle,
-//               gradient: LinearGradient(
-//                 colors: [
-//                   AppColors.primary.withOpacity(0.1),
-//                   AppColors.primary.withOpacity(0.05),
-//                 ],
-//               ),
-//               boxShadow: [
-//                 BoxShadow(
-//                   color: AppColors.primary.withOpacity(0.2),
-//                   blurRadius: 12,
-//                   offset: const Offset(0, 4),
-//                 ),
-//               ],
-//             ),
-//             child: CircleAvatar(
-//               radius: 22,
-//               backgroundColor: Colors.transparent,
-//               backgroundImage: comment.user.profilePictureUrl != null
-//                   ? NetworkImage(comment.user.profilePictureUrl!)
-//                   : null,
-//               child: comment.user.profilePictureUrl == null
-//                   ? Text(
-//                       comment.user.name.isNotEmpty
-//                           ? comment.user.name[0].toUpperCase()
-//                           : 'U',
-//                       style: TextStyle(
-//                         fontWeight: FontWeight.w800,
-//                         color: AppColors.primary,
-//                         fontSize: 16,
-//                       ),
-//                     )
-//                   : null,
-//             ),
-//           ),
+//           _buildAvatar(comment.user.profilePictureUrl, comment.user.name, 22),
 //           const SizedBox(width: 16),
 //           Expanded(
 //             child: Column(
@@ -1467,10 +1018,7 @@
 //                       decoration: BoxDecoration(
 //                         color: const Color(0xFFF1F5F9),
 //                         borderRadius: BorderRadius.circular(12),
-//                         border: Border.all(
-//                           color: const Color(0xFFE2E8F0),
-//                           width: 1,
-//                         ),
+//                         border: Border.all(color: const Color(0xFFE2E8F0)),
 //                       ),
 //                       child: Text(
 //                         DateFormat('MMM dd, hh:mm a').format(comment.createdAt),
@@ -1507,6 +1055,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/appColors.dart';
+import '../../../core/services/dio_client.dart';
 import '../../../data/models/post/comment_model.dart';
 import '../../../data/models/post/social_post_model.dart';
 import '../../../data/providers/like_and_comment_provider.dart';
@@ -1602,6 +1151,120 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
         elevation: 0,
       ),
     );
+  }
+
+  void _showReportDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.report_outlined,
+                color: Colors.red,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Report Post',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Why are you reporting this post?',
+              style: TextStyle(fontSize: 16, color: Color(0xFF64748B)),
+            ),
+            const SizedBox(height: 20),
+            _buildReportOption('Spam', 'spam', Icons.block_outlined),
+            _buildReportOption(
+              'Harassment',
+              'harassment',
+              Icons.person_remove_outlined,
+            ),
+            _buildReportOption(
+              'Inappropriate Content',
+              'inappropriate',
+              Icons.warning_outlined,
+            ),
+            _buildReportOption(
+              'Fake Information',
+              'misinformation',
+              Icons.fact_check_outlined,
+            ),
+            _buildReportOption('Other', 'other', Icons.more_horiz_outlined),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Color(0xFF64748B)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReportOption(String title, String offenseType, IconData icon) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        onTap: () {
+          Navigator.pop(context);
+          _reportPost(offenseType);
+        },
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.red.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: Colors.red, size: 20),
+        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        tileColor: const Color(0xFFF8FAFC),
+      ),
+    );
+  }
+
+  Future<void> _reportPost(String offenseType) async {
+    try {
+      final dio = DioClient().dio;
+      await dio.post(
+        '/post-report/${widget.post.id}',
+        data: {'offense_type': offenseType},
+      );
+
+      _showSnackBar(
+        '🚨 Post reported successfully',
+        Colors.green,
+        Icons.report_rounded,
+      );
+    } catch (e) {
+      _showSnackBar(
+        'Already Reported',
+        const Color(0xFFEF4444),
+        Icons.error_outline_rounded,
+      );
+    }
   }
 
   void _toggleBookmark(BuildContext context) async {
@@ -1862,48 +1525,43 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
         final comments = likeProvider.getComments(widget.post.id);
         final isCommentLoading = likeProvider.isCommentLoading(widget.post.id);
 
-        return AnimatedBuilder(
-          animation: _cardAnimation,
-          builder: (context, child) {
-            return Transform.scale(
-              scale: _cardAnimation.value,
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(28),
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
-                      blurRadius: 30,
-                      offset: const Offset(0, 10),
-                    ),
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+        return Transform.scale(
+          scale: _cardAnimation.value,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(28),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 30,
+                  offset: const Offset(0, 10),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildUserHeader(),
-                    _buildImageSection(),
-                    _buildContentSection(displayText, description),
-                    _buildActionButtons(likeCount, commentCount),
-                    if (isShowingComments) ...[
-                      _buildCommentInput(),
-                      if (isCommentLoading)
-                        _buildLoadingIndicator()
-                      else
-                        _buildCommentsList(comments),
-                    ],
-                  ],
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.02),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
-              ),
-            );
-          },
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildUserHeader(),
+                _buildImageSection(),
+                _buildContentSection(displayText, description),
+                _buildActionButtons(likeCount, commentCount),
+                if (isShowingComments) ...[
+                  _buildCommentInput(),
+                  if (isCommentLoading)
+                    _buildLoadingIndicator()
+                  else
+                    _buildCommentsList(comments),
+                ],
+              ],
+            ),
+          ),
         );
       },
     );
@@ -1956,6 +1614,44 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
                 ),
               ],
             ),
+          ),
+          // Report button
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'report') {
+                _showReportDialog();
+              }
+            },
+            icon: const Icon(Icons.more_vert_rounded, color: Color(0xFF64748B)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            itemBuilder: (context) => [
+              PopupMenuItem<String>(
+                value: 'report',
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.report_outlined,
+                        color: Colors.red,
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Report Post',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -2186,25 +1882,20 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
               GestureDetector(
                 onTap: _handleLike,
                 onLongPress: likeCount > 0 ? _showLikers : null,
-                child: AnimatedBuilder(
-                  animation: _likeAnimation,
-                  builder: (context, child) {
-                    return Transform.scale(
-                      scale: _likeAnimation.value,
-                      child: _buildActionButton(
-                        icon: likeCount > 0
-                            ? Icons.favorite_rounded
-                            : Icons.favorite_border_rounded,
-                        count: likeCount,
-                        label: likeCount == 1 ? 'like' : 'likes',
-                        isActive: likeCount > 0,
-                        activeColors: [
-                          const Color(0xFFEF4444),
-                          const Color(0xFFDC2626),
-                        ],
-                      ),
-                    );
-                  },
+                child: Transform.scale(
+                  scale: _likeAnimation.value,
+                  child: _buildActionButton(
+                    icon: likeCount > 0
+                        ? Icons.favorite_rounded
+                        : Icons.favorite_border_rounded,
+                    count: likeCount,
+                    label: likeCount == 1 ? 'like' : 'likes',
+                    isActive: likeCount > 0,
+                    activeColors: [
+                      const Color(0xFFEF4444),
+                      const Color(0xFFDC2626),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(width: 16),
