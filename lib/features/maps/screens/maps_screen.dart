@@ -52,8 +52,10 @@
 //   }
 //
 //   Future<void> _initializeScreen() async {
+//     print('🚀 Initializing screen...');
 //     await _setupDio();
 //     await Future.wait([_loadCategories(), _getCurrentLocation()]);
+//     print('✅ Screen initialization completed');
 //   }
 //
 //   Future<void> _setupDio() async {
@@ -72,27 +74,38 @@
 //   }
 //
 //   Future<void> _loadCategories() async {
+//     print('🔄 Loading categories from SharedPreferences...');
+//
 //     try {
 //       final prefs = await SharedPreferences.getInstance();
 //       final savedCategories = prefs.getStringList('selected_categories') ?? [];
 //
+//       print('📦 Raw categories from SharedPrefs: $savedCategories');
+//
 //       if (mounted) {
 //         setState(() {
 //           _categories = savedCategories;
-//           _isLoadingCategories = false;
+//           _isLoadingCategories = false; // ✅ Always set to false
 //         });
+//         print('✅ Categories loaded successfully: $_categories');
+//         print('🔧 _isLoadingCategories set to: $_isLoadingCategories');
 //       }
 //     } catch (e) {
+//       print('❌ Failed to load categories: $e');
+//
 //       if (mounted) {
 //         setState(() {
+//           _categories = []; // ✅ Set empty list instead of leaving undefined
 //           _errorMessage = 'Failed to load categories: ${e.toString()}';
-//           _isLoadingCategories = false;
+//           _isLoadingCategories = false; // ✅ Always set to false
 //         });
 //       }
 //     }
 //   }
 //
 //   Future<void> _getCurrentLocation() async {
+//     print('📍 Getting current location...');
+//
 //     try {
 //       // Check location permissions
 //       LocationPermission permission = await Geolocator.checkPermission();
@@ -122,6 +135,10 @@
 //           _isLoadingLocation = false;
 //         });
 //
+//         print(
+//           '✅ Location obtained: ${position.latitude}, ${position.longitude}',
+//         );
+//
 //         // Add current location marker
 //         _addCurrentLocationMarker();
 //
@@ -129,6 +146,7 @@
 //         _moveCameraToLocation(_center);
 //       }
 //     } catch (e) {
+//       print('❌ Location error: $e');
 //       _showLocationError('Failed to get current location: ${e.toString()}');
 //     }
 //   }
@@ -137,7 +155,7 @@
 //     if (mounted) {
 //       setState(() {
 //         _errorMessage = message;
-//         _isLoadingLocation = false;
+//         _isLoadingLocation = false; // ✅ Always set to false even on error
 //       });
 //
 //       ScaffoldMessenger.of(context).showSnackBar(
@@ -172,16 +190,25 @@
 //   }
 //
 //   Future<void> _moveCameraToLocation(LatLng location) async {
-//     final controller = await _controller.future;
-//     await controller.animateCamera(
-//       CameraUpdate.newCameraPosition(
-//         CameraPosition(target: location, zoom: 14),
-//       ),
-//     );
+//     try {
+//       final controller = await _controller.future;
+//       await controller.animateCamera(
+//         CameraUpdate.newCameraPosition(
+//           CameraPosition(target: location, zoom: 14),
+//         ),
+//       );
+//     } catch (e) {
+//       print('❌ Camera movement error: $e');
+//     }
 //   }
 //
 //   Future<void> _fetchPopularPlaces(String category) async {
-//     if (_isLoadingPlaces) return;
+//     if (_isLoadingPlaces) {
+//       print('⏳ Already loading places, skipping...');
+//       return;
+//     }
+//
+//     print('🔍 Fetching places for category: $category');
 //
 //     setState(() {
 //       _isLoadingPlaces = true;
@@ -200,12 +227,15 @@
 //         },
 //       );
 //
+//       print('📡 API Response status: ${response.statusCode}');
+//
 //       if (response.statusCode == 200) {
 //         final List data = response.data['data'] ?? [];
 //         final List<PopularPlaceModel> places = data
 //             .map((place) => PopularPlaceModel.fromJson(place))
 //             .toList();
 //
+//         print('✅ Found ${places.length} places');
 //         _updatePlacesAndMarkers(places);
 //       } else {
 //         throw DioException(
@@ -215,12 +245,17 @@
 //         );
 //       }
 //     } on DioException catch (e) {
+//       print('❌ Dio error: ${e.message}');
 //       _handleApiError(e);
 //     } catch (e) {
+//       print('❌ Generic error: $e');
 //       _handleGenericError(e);
 //     } finally {
 //       if (mounted) {
-//         setState(() => _isLoadingPlaces = false);
+//         setState(() {
+//           _isLoadingPlaces = false; // ✅ Always reset loading state
+//         });
+//         print('🔧 _isLoadingPlaces set to: $_isLoadingPlaces');
 //       }
 //     }
 //   }
@@ -270,30 +305,34 @@
 //   Future<void> _fitCameraToMarkers() async {
 //     if (_markers.isEmpty) return;
 //
-//     final controller = await _controller.future;
+//     try {
+//       final controller = await _controller.future;
 //
-//     double minLat = double.infinity;
-//     double maxLat = -double.infinity;
-//     double minLng = double.infinity;
-//     double maxLng = -double.infinity;
+//       double minLat = double.infinity;
+//       double maxLat = -double.infinity;
+//       double minLng = double.infinity;
+//       double maxLng = -double.infinity;
 //
-//     for (final marker in _markers) {
-//       final position = marker.position;
-//       minLat = math.min(minLat, position.latitude);
-//       maxLat = math.max(maxLat, position.latitude);
-//       minLng = math.min(minLng, position.longitude);
-//       maxLng = math.max(maxLng, position.longitude);
-//     }
+//       for (final marker in _markers) {
+//         final position = marker.position;
+//         minLat = math.min(minLat, position.latitude);
+//         maxLat = math.max(maxLat, position.latitude);
+//         minLng = math.min(minLng, position.longitude);
+//         maxLng = math.max(maxLng, position.longitude);
+//       }
 //
-//     await controller.animateCamera(
-//       CameraUpdate.newLatLngBounds(
-//         LatLngBounds(
-//           southwest: LatLng(minLat, minLng),
-//           northeast: LatLng(maxLat, maxLng),
+//       await controller.animateCamera(
+//         CameraUpdate.newLatLngBounds(
+//           LatLngBounds(
+//             southwest: LatLng(minLat, minLng),
+//             northeast: LatLng(maxLat, maxLng),
+//           ),
+//           100.0, // padding
 //         ),
-//         100.0, // padding
-//       ),
-//     );
+//       );
+//     } catch (e) {
+//       print('❌ Camera fit error: $e');
+//     }
 //   }
 //
 //   void _handleApiError(DioException e) {
@@ -341,16 +380,62 @@
 //   }
 //
 //   Widget _buildCategoryDropdown() {
+//     print(
+//       '🎨 Building dropdown - isLoadingPlaces: $_isLoadingPlaces, categories: ${_categories.length}',
+//     );
+//
+//     // ✅ Show message if no categories
+//     if (_categories.isEmpty && !_isLoadingCategories) {
+//       return Container(
+//         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+//         decoration: BoxDecoration(
+//           border: Border.all(color: Colors.orange.shade300),
+//           borderRadius: BorderRadius.circular(8),
+//           color: Colors.orange.shade50,
+//         ),
+//         child: Row(
+//           children: [
+//             Icon(
+//               Icons.warning_amber_rounded,
+//               color: Colors.orange.shade600,
+//               size: 16,
+//             ),
+//             const SizedBox(width: 8),
+//             Expanded(
+//               child: Text(
+//                 'No categories selected. Please select your interests first.',
+//                 style: TextStyle(
+//                   color: Colors.orange.shade700,
+//                   fontSize: 12,
+//                   fontWeight: FontWeight.w500,
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       );
+//     }
+//
 //     return Container(
 //       padding: const EdgeInsets.symmetric(horizontal: 12),
 //       decoration: BoxDecoration(
 //         border: Border.all(color: Colors.grey.shade300),
 //         borderRadius: BorderRadius.circular(8),
+//         color: _isLoadingPlaces
+//             ? Colors.grey.shade100
+//             : Colors.white, // ✅ Visual feedback
 //       ),
 //       child: DropdownButtonHideUnderline(
 //         child: DropdownButton<String>(
 //           value: _selectedCategory,
-//           hint: const Text('Select Category'),
+//           hint: Text(
+//             _isLoadingPlaces ? 'Loading...' : 'Select Category',
+//             style: TextStyle(
+//               color: _isLoadingPlaces
+//                   ? Colors.grey.shade500
+//                   : Colors.grey.shade700,
+//             ),
+//           ),
 //           isExpanded: true,
 //           items: _categories.map((category) {
 //             return DropdownMenuItem(
@@ -358,9 +443,11 @@
 //               child: Text(category, overflow: TextOverflow.ellipsis),
 //             );
 //           }).toList(),
-//           onChanged: _isLoadingPlaces
+//           onChanged:
+//               _isLoadingPlaces // ✅ Only disable when actually loading places
 //               ? null
 //               : (value) {
+//                   print('🎯 Dropdown selected: $value');
 //                   setState(() => _selectedCategory = value);
 //                   if (value != null) {
 //                     _fetchPopularPlaces(value);
@@ -400,8 +487,20 @@
 //     );
 //   }
 //
+//   // ✅ Add refresh method for debugging
+//   void _refreshCategories() async {
+//     setState(() {
+//       _isLoadingCategories = true;
+//     });
+//     await _loadCategories();
+//   }
+//
 //   @override
 //   Widget build(BuildContext context) {
+//     print(
+//       '🏗️ Building widget - isLoadingCategories: $_isLoadingCategories, isLoadingPlaces: $_isLoadingPlaces',
+//     );
+//
 //     return Scaffold(
 //       appBar: AppBar(
 //         title: Row(
@@ -410,12 +509,24 @@
 //             const SizedBox(width: 12),
 //             Expanded(
 //               child: _isLoadingCategories
-//                   ? const Center(child: CircularProgressIndicator())
+//                   ? const Center(
+//                       child: SizedBox(
+//                         height: 20,
+//                         width: 20,
+//                         child: CircularProgressIndicator(strokeWidth: 2),
+//                       ),
+//                     )
 //                   : _buildCategoryDropdown(),
 //             ),
 //           ],
 //         ),
 //         actions: [
+//           // ✅ Add refresh button for debugging
+//           IconButton(
+//             icon: const Icon(Icons.refresh),
+//             onPressed: _refreshCategories,
+//             tooltip: 'Refresh categories',
+//           ),
 //           if (_currentPosition != null)
 //             IconButton(
 //               icon: const Icon(Icons.my_location),
@@ -460,8 +571,6 @@
 //     );
 //   }
 // }
-//
-// // Add this import at the top
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -483,15 +592,24 @@ class PopularPlacesMapScreen extends StatefulWidget {
   State<PopularPlacesMapScreen> createState() => _PopularPlacesMapScreenState();
 }
 
-class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
+class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen>
+    with TickerProviderStateMixin {
   final Completer<GoogleMapController> _controller = Completer();
   final Dio _dio = Dio();
+  final TextEditingController _promptController = TextEditingController();
+
+  // Animation controllers
+  late AnimationController _fabAnimationController;
+  late AnimationController _promptAnimationController;
+  late Animation<double> _fabAnimation;
+  late Animation<Offset> _promptSlideAnimation;
 
   // State variables
   List<String> _categories = [];
   String? _selectedCategory;
   Set<Marker> _markers = {};
   List<PopularPlaceModel> _places = [];
+  List<AIRecommendationModel> _aiRecommendations = [];
   Position? _currentPosition;
   LatLng _center = const LatLng(27.6748, 85.4274); // Default Kathmandu location
 
@@ -499,6 +617,11 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
   bool _isLoadingLocation = true;
   bool _isLoadingPlaces = false;
   bool _isLoadingCategories = true;
+  bool _isLoadingAI = false;
+
+  // UI states
+  bool _isPromptVisible = false;
+  bool _isAIMode = false;
 
   // Error states
   String? _errorMessage;
@@ -506,11 +629,44 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
   @override
   void initState() {
     super.initState();
+    _setupAnimations();
     _initializeScreen();
+  }
+
+  void _setupAnimations() {
+    _fabAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    _promptAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+
+    _fabAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _fabAnimationController,
+        curve: Curves.elasticOut,
+      ),
+    );
+
+    _promptSlideAnimation =
+        Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _promptAnimationController,
+            curve: Curves.easeOutBack,
+          ),
+        );
+
+    _fabAnimationController.forward();
   }
 
   @override
   void dispose() {
+    _fabAnimationController.dispose();
+    _promptAnimationController.dispose();
+    _promptController.dispose();
     _dio.close();
     super.dispose();
   }
@@ -549,19 +705,18 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
       if (mounted) {
         setState(() {
           _categories = savedCategories;
-          _isLoadingCategories = false; // ✅ Always set to false
+          _isLoadingCategories = false;
         });
         print('✅ Categories loaded successfully: $_categories');
-        print('🔧 _isLoadingCategories set to: $_isLoadingCategories');
       }
     } catch (e) {
       print('❌ Failed to load categories: $e');
 
       if (mounted) {
         setState(() {
-          _categories = []; // ✅ Set empty list instead of leaving undefined
+          _categories = [];
           _errorMessage = 'Failed to load categories: ${e.toString()}';
-          _isLoadingCategories = false; // ✅ Always set to false
+          _isLoadingCategories = false;
         });
       }
     }
@@ -571,7 +726,6 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
     print('📍 Getting current location...');
 
     try {
-      // Check location permissions
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
@@ -586,7 +740,6 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
         return;
       }
 
-      // Get current position
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
         timeLimit: const Duration(seconds: 10),
@@ -602,11 +755,7 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
         print(
           '✅ Location obtained: ${position.latitude}, ${position.longitude}',
         );
-
-        // Add current location marker
         _addCurrentLocationMarker();
-
-        // Move camera to current location
         _moveCameraToLocation(_center);
       }
     } catch (e) {
@@ -619,7 +768,7 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
     if (mounted) {
       setState(() {
         _errorMessage = message;
-        _isLoadingLocation = false; // ✅ Always set to false even on error
+        _isLoadingLocation = false;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -677,6 +826,7 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
     setState(() {
       _isLoadingPlaces = true;
       _errorMessage = null;
+      _isAIMode = false;
     });
 
     try {
@@ -717,10 +867,99 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
     } finally {
       if (mounted) {
         setState(() {
-          _isLoadingPlaces = false; // ✅ Always reset loading state
+          _isLoadingPlaces = false;
         });
-        print('🔧 _isLoadingPlaces set to: $_isLoadingPlaces');
       }
+    }
+  }
+
+  Future<void> _fetchAIRecommendations(String prompt) async {
+    if (_isLoadingAI) return;
+
+    setState(() {
+      _isLoadingAI = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final response = await _dio.post(
+        '/recommendations',
+        data: {'prompt': prompt},
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        final List locationData = data['locations'] ?? [];
+
+        final recommendations = locationData
+            .map((location) => AIRecommendationModel.fromJson(location))
+            .toList();
+
+        setState(() {
+          _aiRecommendations = recommendations;
+          _isAIMode = true;
+        });
+
+        _updateAIMarkersAndCamera(recommendations);
+        _hidePrompt();
+
+        // Show success message with recommendation summary
+        _showSuccessMessage(
+          'Found ${recommendations.length} AI recommendations!',
+        );
+      } else {
+        throw DioException(
+          requestOptions: response.requestOptions,
+          response: response,
+          message: 'Failed to fetch AI recommendations',
+        );
+      }
+    } on DioException catch (e) {
+      print('❌ AI API error: ${e.message}');
+      _handleApiError(e);
+    } catch (e) {
+      print('❌ AI Generic error: $e');
+      _handleGenericError(e);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingAI = false;
+        });
+      }
+    }
+  }
+
+  void _updateAIMarkersAndCamera(List<AIRecommendationModel> recommendations) {
+    if (!mounted) return;
+
+    setState(() {
+      // Clear existing place markers but keep current location
+      _markers.removeWhere(
+        (marker) => marker.markerId.value != 'current_location',
+      );
+
+      // Add AI recommendation markers
+      final aiMarkers = recommendations.map((recommendation) {
+        return Marker(
+          markerId: MarkerId('ai_${recommendation.id}'),
+          position: LatLng(recommendation.latitude, recommendation.longitude),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueViolet,
+          ),
+          infoWindow: InfoWindow(
+            title: recommendation.name,
+            snippet: '${recommendation.category} • ${recommendation.city}',
+            onTap: () => _navigateToAIRecommendationDetails(recommendation),
+          ),
+        );
+      }).toSet();
+
+      _markers.addAll(aiMarkers);
+    });
+
+    // Fit camera to show all markers
+    if (recommendations.isNotEmpty) {
+      _fitCameraToMarkers();
     }
   }
 
@@ -791,7 +1030,7 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
             southwest: LatLng(minLat, minLng),
             northeast: LatLng(maxLat, maxLng),
           ),
-          100.0, // padding
+          100.0,
         ),
       );
     } catch (e) {
@@ -805,7 +1044,7 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
     if (e.response?.statusCode == 401) {
       message = 'Authentication failed. Please login again.';
     } else if (e.response?.statusCode == 404) {
-      message = 'No places found for this category';
+      message = 'No places found for this request';
     } else if (e.response?.statusCode == 500) {
       message = 'Server error. Please try again later.';
     } else if (e.type == DioExceptionType.connectionTimeout) {
@@ -836,6 +1075,17 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
     }
   }
 
+  void _showSuccessMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
   void _navigateToPlaceDetails(PopularPlaceModel place) {
     Navigator.push(
       context,
@@ -843,12 +1093,76 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
     );
   }
 
-  Widget _buildCategoryDropdown() {
-    print(
-      '🎨 Building dropdown - isLoadingPlaces: $_isLoadingPlaces, categories: ${_categories.length}',
+  void _navigateToAIRecommendationDetails(
+    AIRecommendationModel recommendation,
+  ) {
+    // Convert AI recommendation to PopularPlaceModel for existing detail screen
+    final place = PopularPlaceModel(
+      id: recommendation.id,
+      placeId: recommendation.placeId,
+      name: recommendation.name,
+      latitude: recommendation.latitude,
+      longitude: recommendation.longitude,
+      cityId: 0, // Not provided in AI response
+      description: recommendation.description,
+      averageRating: recommendation.averageRating,
+      distance: 0.0, // Calculate if needed
+      locationImages: recommendation.images.map((img) => img.imageUrl).toList(),
+      categoryId: 0, // Not provided
+      category: recommendation.category,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
     );
 
-    // ✅ Show message if no categories
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => PopularPlaceDetailScreen(place: place)),
+    );
+  }
+
+  void _showPrompt() {
+    setState(() {
+      _isPromptVisible = true;
+    });
+    _promptAnimationController.forward();
+  }
+
+  void _hidePrompt() {
+    _promptAnimationController.reverse().then((_) {
+      if (mounted) {
+        setState(() {
+          _isPromptVisible = false;
+        });
+      }
+    });
+  }
+
+  void _submitPrompt() {
+    final prompt = _promptController.text.trim();
+    if (prompt.isNotEmpty) {
+      _fetchAIRecommendations(prompt);
+      _promptController.clear();
+    }
+  }
+
+  void _clearAIResults() {
+    setState(() {
+      _isAIMode = false;
+      _aiRecommendations.clear();
+      // Clear AI markers but keep current location and regular place markers
+      _markers.removeWhere((marker) => marker.markerId.value.startsWith('ai_'));
+    });
+  }
+
+  // ✅ Add refresh method for debugging
+  void _refreshCategories() async {
+    setState(() {
+      _isLoadingCategories = true;
+    });
+    await _loadCategories();
+  }
+
+  Widget _buildCategoryDropdown() {
     if (_categories.isEmpty && !_isLoadingCategories) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
@@ -867,7 +1181,7 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'No categories selected. Please select your interests first.',
+                'No categories selected. Use AI search instead!',
                 style: TextStyle(
                   color: Colors.orange.shade700,
                   fontSize: 12,
@@ -885,9 +1199,7 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(8),
-        color: _isLoadingPlaces
-            ? Colors.grey.shade100
-            : Colors.white, // ✅ Visual feedback
+        color: _isLoadingPlaces ? Colors.grey.shade100 : Colors.white,
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
@@ -907,11 +1219,9 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
               child: Text(category, overflow: TextOverflow.ellipsis),
             );
           }).toList(),
-          onChanged:
-              _isLoadingPlaces // ✅ Only disable when actually loading places
+          onChanged: _isLoadingPlaces
               ? null
               : (value) {
-                  print('🎯 Dropdown selected: $value');
                   setState(() => _selectedCategory = value);
                   if (value != null) {
                     _fetchPopularPlaces(value);
@@ -923,7 +1233,7 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
   }
 
   Widget _buildLoadingOverlay() {
-    if (!_isLoadingPlaces) return const SizedBox.shrink();
+    if (!_isLoadingPlaces && !_isLoadingAI) return const SizedBox.shrink();
 
     return Positioned(
       top: 0,
@@ -931,8 +1241,14 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
       right: 0,
       child: Container(
         padding: const EdgeInsets.all(16),
-        color: Colors.black54,
-        child: const Row(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.black54, Colors.transparent],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
@@ -943,28 +1259,198 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               ),
             ),
-            SizedBox(width: 12),
-            Text('Loading places...', style: TextStyle(color: Colors.white)),
+            const SizedBox(width: 12),
+            Text(
+              _isLoadingAI ? 'AI is thinking...' : 'Loading places...',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  // ✅ Add refresh method for debugging
-  void _refreshCategories() async {
-    setState(() {
-      _isLoadingCategories = true;
-    });
-    await _loadCategories();
+  Widget _buildPromptDialog() {
+    if (!_isPromptVisible) return const SizedBox.shrink();
+
+    return Positioned(
+      bottom: 120, // ✅ Moved up from bottom: 0
+      left: 0,
+      right: 0,
+      child: SlideTransition(
+        position: _promptSlideAnimation,
+        child: Container(
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 20,
+                offset: const Offset(0, -5),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.purple.shade400, Colors.blue.shade400],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.auto_awesome,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text(
+                      'Ask AI for Recommendations',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: _hidePrompt,
+                    icon: const Icon(Icons.close, color: Colors.grey),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: TextField(
+                  controller: _promptController,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    hintText:
+                        'e.g., "Find the best restaurants near me" or "Recommend schools for my kid"',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.all(16),
+                  ),
+                  onSubmitted: (_) => _submitPrompt(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _hidePrompt,
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton(
+                      onPressed: _isLoadingAI ? null : _submitPrompt,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        backgroundColor: Colors.purple.shade500,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: _isLoadingAI
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.send, size: 18),
+                                SizedBox(width: 8),
+                                Text('Ask AI'),
+                              ],
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFloatingButtons() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        if (_isAIMode) ...[
+          ScaleTransition(
+            scale: _fabAnimation,
+            child: FloatingActionButton(
+              heroTag: "clear_ai",
+              onPressed: _clearAIResults,
+              backgroundColor: Colors.orange.shade500,
+              child: const Icon(Icons.clear),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (_aiRecommendations.isNotEmpty || _places.isNotEmpty) ...[
+          ScaleTransition(
+            scale: _fabAnimation,
+            child: FloatingActionButton(
+              heroTag: "show_all",
+              onPressed: _fitCameraToMarkers,
+              backgroundColor: Colors.blue.shade500,
+              child: const Icon(Icons.zoom_out_map),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        ScaleTransition(
+          scale: _fabAnimation,
+          child: FloatingActionButton.extended(
+            heroTag: "ai_search",
+            onPressed: _showPrompt,
+            backgroundColor: Colors.white,
+            icon: const Icon(Icons.auto_awesome),
+            label: const Text('AI Search'),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    print(
-      '🏗️ Building widget - isLoadingCategories: $_isLoadingCategories, isLoadingPlaces: $_isLoadingPlaces',
-    );
-
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -1023,15 +1509,88 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen> {
               mapToolbarEnabled: false,
             ),
           _buildLoadingOverlay(),
+          _buildPromptDialog(),
         ],
       ),
-      floatingActionButton: _places.isNotEmpty
-          ? FloatingActionButton.extended(
-              onPressed: _fitCameraToMarkers,
-              icon: const Icon(Icons.zoom_out_map),
-              label: Text('Show All (${_places.length})'),
-            )
-          : null,
+      floatingActionButton: _aiRecommendations.isNotEmpty || _places.isNotEmpty
+          ? _buildFloatingButtons()
+          : ScaleTransition(
+              scale: _fabAnimation,
+              child: FloatingActionButton.extended(
+                heroTag: "ai_search",
+                onPressed: _showPrompt,
+                backgroundColor: Colors.white,
+                icon: const Icon(Icons.auto_awesome),
+                label: const Text('AI Search'),
+              ),
+            ),
+    );
+  }
+}
+
+// AI Recommendation Model
+class AIRecommendationModel {
+  final int id;
+  final String name;
+  final double latitude;
+  final double longitude;
+  final String city;
+  final String category;
+  final String description;
+  final String dbDescription;
+  final double? averageRating;
+  final String placeId;
+  final List<AIImageModel> images;
+
+  AIRecommendationModel({
+    required this.id,
+    required this.name,
+    required this.latitude,
+    required this.longitude,
+    required this.city,
+    required this.category,
+    required this.description,
+    required this.dbDescription,
+    this.averageRating,
+    required this.placeId,
+    required this.images,
+  });
+
+  factory AIRecommendationModel.fromJson(Map<String, dynamic> json) {
+    return AIRecommendationModel(
+      id: json['id'] ?? 0,
+      name: json['name'] ?? 'Unknown Place',
+      latitude: double.tryParse(json['latitude']?.toString() ?? '0') ?? 0.0,
+      longitude: double.tryParse(json['longitude']?.toString() ?? '0') ?? 0.0,
+      city: json['city'] ?? '',
+      category: json['category'] ?? '',
+      description: json['description'] ?? '',
+      dbDescription: json['db_description'] ?? 'No description available',
+      averageRating: json['average_rating']?.toDouble(),
+      placeId: json['place_id'] ?? '',
+      images: (json['images'] as List? ?? [])
+          .map((img) => AIImageModel.fromJson(img))
+          .toList(),
+    );
+  }
+}
+
+class AIImageModel {
+  final int id;
+  final String imageUrl;
+  final String status;
+
+  AIImageModel({
+    required this.id,
+    required this.imageUrl,
+    required this.status,
+  });
+
+  factory AIImageModel.fromJson(Map<String, dynamic> json) {
+    return AIImageModel(
+      id: json['id'] ?? 0,
+      imageUrl: json['image_url'] ?? '',
+      status: json['status'] ?? '',
     );
   }
 }
