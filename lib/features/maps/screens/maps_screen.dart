@@ -2414,23 +2414,64 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen>
     });
 
     try {
+      // Fetch more places by increasing limit and getting all pages
       final response = await _dio.get(
         '/places/popular',
         queryParameters: {
           'latitude': _currentPosition!.latitude,
           'longitude': _currentPosition!.longitude,
+          'limit': 50, // Increase limit to get more places
+          'radius': 25000, // Add radius parameter (25km)
         },
       );
 
       print('📡 Default Places API Response status: ${response.statusCode}');
+      print('📡 Response data: ${response.data}');
 
       if (response.statusCode == 200) {
-        final List data = response.data['data'] ?? [];
+        final responseData = response.data;
+        final List data = responseData['data'] ?? [];
+        final int total = responseData['total'] ?? 0;
+
+        print(
+          '📊 API returned ${data.length} places out of $total total places',
+        );
+
+        if (data.isEmpty) {
+          print('⚠️ No places found in API response');
+          if (mounted) {
+            setState(() {
+              _defaultPlaces = [];
+              _isDefaultMode = true;
+            });
+            _showError('No popular places found nearby');
+          }
+          return;
+        }
+
         final List<PopularPlaceModel> places = data
-            .map((place) => PopularPlaceModel.fromJson(place))
+            .map((place) {
+              try {
+                return PopularPlaceModel.fromJson(place);
+              } catch (e) {
+                print('❌ Error parsing place: $e');
+                print('🔍 Place data: $place');
+                return null;
+              }
+            })
+            .where((place) => place != null)
+            .cast<PopularPlaceModel>()
             .toList();
 
-        print('✅ Found ${places.length} default places');
+        print('✅ Successfully parsed ${places.length} places');
+
+        // Debug: Print first few places
+        for (int i = 0; i < math.min(3, places.length); i++) {
+          final place = places[i];
+          print(
+            '🏢 Place ${i + 1}: ${place.name} at (${place.latitude}, ${place.longitude})',
+          );
+        }
 
         if (mounted) {
           setState(() {
@@ -2448,6 +2489,7 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen>
       }
     } on DioException catch (e) {
       print('❌ Default places Dio error: ${e.message}');
+      print('❌ Response: ${e.response?.data}');
       _handleApiError(e);
     } catch (e) {
       print('❌ Default places generic error: $e');
@@ -2465,14 +2507,25 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen>
   void _updateDefaultPlacesAndMarkers(List<PopularPlaceModel> places) {
     if (!mounted) return;
 
+    print('🗺️ Updating markers for ${places.length} default places');
+
     setState(() {
       // Clear existing place markers but keep current location
       _markers.removeWhere(
         (marker) => marker.markerId.value != 'current_location',
       );
 
+      print('🧹 Cleared existing markers, keeping current_location');
+
       // Add default place markers with orange color to differentiate
-      final placeMarkers = places.map((place) {
+      final placeMarkers = places.asMap().entries.map((entry) {
+        final index = entry.key;
+        final place = entry.value;
+
+        print(
+          '📍 Creating marker ${index + 1}: ${place.name} at (${place.latitude}, ${place.longitude})',
+        );
+
         return Marker(
           markerId: MarkerId('default_${place.id}'),
           position: LatLng(place.latitude, place.longitude),
@@ -2482,17 +2535,30 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen>
           infoWindow: InfoWindow(
             title: place.name,
             snippet: '${place.category} • ${_formatDistance(place.distance)}',
-            onTap: () => _navigateToPlaceDetails(place),
+            onTap: () {
+              print('🎯 Tapped on place: ${place.name}');
+              _navigateToPlaceDetails(place);
+            },
           ),
         );
       }).toSet();
 
+      print('✅ Created ${placeMarkers.length} markers');
       _markers.addAll(placeMarkers);
+
+      print('📊 Total markers now: ${_markers.length}');
+
+      // Debug: Print all marker IDs
+      final markerIds = _markers.map((m) => m.markerId.value).toList();
+      print('🏷️ All marker IDs: $markerIds');
     });
 
     // Fit camera to show all markers
     if (places.isNotEmpty) {
+      print('📷 Fitting camera to show all markers');
       _fitCameraToMarkers();
+    } else {
+      print('⚠️ No places to fit camera to');
     }
   }
 
@@ -2602,6 +2668,85 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen>
       if (mounted) {
         setState(() {
           _isLoadingPlaces = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _fetchAllDefaultPlaces() async {
+    if (_currentPosition == null || _isLoadingDefaultPlaces) return;
+
+    print('🌟 Fetching ALL default popular places...');
+
+    setState(() {
+      _isLoadingDefaultPlaces = true;
+      _errorMessage = null;
+    });
+
+    try {
+      List<PopularPlaceModel> allPlaces = [];
+      int currentPage = 1;
+      int totalPages = 1;
+
+      do {
+        final response = await _dio.get(
+          '/places/popular',
+          queryParameters: {
+            'latitude': _currentPosition!.latitude,
+            'longitude': _currentPosition!.longitude,
+            'page': currentPage,
+            'per_page': 20, // Get 20 places per page
+            'radius': 25000, // 25km radius
+          },
+        );
+
+        if (response.statusCode == 200) {
+          final responseData = response.data;
+          final List data = responseData['data'] ?? [];
+          totalPages = responseData['last_page'] ?? 1;
+
+          print('📄 Page $currentPage/$totalPages: ${data.length} places');
+
+          final List<PopularPlaceModel> pageePlaces = data
+              .map((place) {
+                try {
+                  return PopularPlaceModel.fromJson(place);
+                } catch (e) {
+                  print('❌ Error parsing place: $e');
+                  return null;
+                }
+              })
+              .where((place) => place != null)
+              .cast<PopularPlaceModel>()
+              .toList();
+
+          allPlaces.addAll(pageePlaces);
+          currentPage++;
+        } else {
+          break;
+        }
+      } while (currentPage <= totalPages &&
+          currentPage <= 5); // Limit to 5 pages max
+
+      print('✅ Fetched total ${allPlaces.length} places from all pages');
+
+      if (mounted) {
+        setState(() {
+          _defaultPlaces = allPlaces;
+          _isDefaultMode = true;
+        });
+        _updateDefaultPlacesAndMarkers(allPlaces);
+      }
+    } on DioException catch (e) {
+      print('❌ Fetch all places Dio error: ${e.message}');
+      _handleApiError(e);
+    } catch (e) {
+      print('❌ Fetch all places generic error: $e');
+      _handleGenericError(e);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingDefaultPlaces = false;
         });
       }
     }
@@ -2917,8 +3062,8 @@ class _PopularPlacesMapScreenState extends State<PopularPlacesMapScreen>
       _isDefaultMode = true;
     });
 
-    // Re-fetch default places
-    await _fetchDefaultPlaces();
+    // Use the enhanced method to get more places
+    await _fetchAllDefaultPlaces();
 
     // Show success message
     _showSuccessMessage('Popular places refreshed!');
